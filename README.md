@@ -9,3 +9,5 @@ Using Node.js and npm to create a short url service.
 - helmet - security
 - morgan - logging
 - cors - cross origin resource sharing
+- dotenv - environment variables
+- nodemon - development server

@@ -1,0 +1,51 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Popins', sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgb(56, 56, 56);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: url(https://i.ibb.co/60KbcL0/here-g74db8375a-1920.png);
+}
+
+.not-found {
+  text-align: center;
+  color: #fff;
+  margin: 1rem 0;
+  font-size: 3rem;
+}
+
+.go-home-link {
+  display: flex;
+  align-items: center;
+  color: #fff;
+  margin: 1rem 0;
+  font-size: 1.5rem;
+}
+
+.go-home-link:hover {
+  color: deeppink;
+}
+
+.arrow {
+  margin-left: 0.5rem;
+  transition: transform 0.3s ease-in-out;
+}
+
+.go-home-link:hover .arrow {
+  transform: translateX(-0.5rem);
+}
