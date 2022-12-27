@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
@@ -14,15 +15,38 @@
   <body>
     <header>
       <h1>short</h1>
+      <h2>o</h2>
       <br />
       <h3>Url Shorten Generator</h3>
     </header>
     <main id="app">
-      <form action="/shorten" method="POST">
-        <input class="input" type="text" name="url" />
-        <button class="create" type="submit">Shorten</button>
+      <!-- <form action="/shorten" method="POST"> -->
+      <!-- <form id="url-form" class="url-form" onsubmit="createUrl()"> -->
+      <form id="url-form" class="url-form">
+        <!-- <label for="url">Long Url:</label> -->
+        <input
+          class="input"
+          type="text"
+          name="url"
+          id="url"
+          placeholder="Enter a URL"
+        />
+        <br />
+        <!-- <label for="slug">Short Alias:</label> -->
+        <input
+          class="input"
+          type="text"
+          name="slug"
+          id="slug"
+          placeholder="Enter a custom slug"
+        />
+        <br />
+        <!-- <button class="create" type="submit">Shrink</button> -->
+        <button class="create" id="shrinkBtn">Shrink</button>
       </form>
-      <div id="shortened">Short Code:</div>
+      <div id="newUrl" class="url-list"></div>
+      <div class="error hidden" id="error"></div>
     </main>
+    <script src="app.js"></script>
   </body>
 </html>
