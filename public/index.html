@@ -9,7 +9,7 @@
       href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
     />
     <link rel="stylesheet" href="style.css" />
-    <title>Short Url</title>
+    <title>short</title>
   </head>
   <body>
     <header>
@@ -17,11 +17,12 @@
       <br />
       <h3>Url Shorten Generator</h3>
     </header>
-
-    <form action="/shorten" method="POST">
-      <input class="input" type="text" name="url" />
-      <button class="create" type="submit">Shorten</button>
-    </form>
-    <div id="shortened">Short Code:</div>
+    <main id="app">
+      <form action="/shorten" method="POST">
+        <input class="input" type="text" name="url" />
+        <button class="create" type="submit">Shorten</button>
+      </form>
+      <div id="shortened">Short Code:</div>
+    </main>
   </body>
 </html>

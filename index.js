@@ -71,7 +71,7 @@ app.post('/url', async (req, res, next) => {
   }
 })
 
-// url redirect
+// url redirect & track visits
 app.get('/:id', async (req, res) => {
   const { id: slug } = req.params
   // get IP address of visitor
@@ -79,6 +79,9 @@ app.get('/:id', async (req, res) => {
   console.log('visitorIP', visitorIP)
   // get url from database
   const url = await urls.findOne({ slug })
+  if (!url) {
+    return res.status(404).sendFile(notFoundPath)
+  }
   // check if IP address exists in visitors array
   const visitor = url.visitors.find((visitor) => visitor === visitorIP)
   console.log('visitor', visitor)
