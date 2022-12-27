@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <title>Link Management | short</title>
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/links.html" class="active">Links</a></li>
+      </ul>
+    </nav>
+    <h2 class="links">Link Management</h2>
+    <p class="off-white center mg-2-2">
+      Whether you have one or one thousand links, having proper management and
+      information is the key to success. Here you can view all of your links and
+      their information.
+    </p>
+    <!-- on the links page, have button for user to log in and upon logging in they can view their links info -->
+    <button class="login" id="login-start">Log In</button>
+    <form id="login-form" class="login-form hidden">
+      <input
+        class="input"
+        type="email"
+        name="email"
+        id="login-email"
+        placeholder="Registered email"
+      />
+      <br />
+      <input
+        class="input"
+        type="password"
+        name="password"
+        id="login-password"
+        placeholder="password"
+      />
+      <br />
+      <button class="create" id="loginBtn">Log In</button>
+      <!-- create a button that looks like a link -->
+      <button id="create-account">Create Account</button>
+    </form>
+    <div id="register"></div>
+    <div class="url-list"></div>
+    <script src="links.js"></script>
+  </body>
+</html>

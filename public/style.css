@@ -18,6 +18,43 @@ body {
   background-color: rgb(56, 56, 56);
 }
 
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+nav a {
+  color: #ffffff;
+  text-decoration: none;
+  margin: 1rem 0;
+}
+
+nav .active {
+  color: #3ff142;
+}
+
+nav .active:hover {
+  text-decoration: none;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  display: inline;
+}
+
+nav li {
+  display: inline;
+  margin: 0 1rem;
+}
+
 header {
   display: flex;
   flex-direction: column;
@@ -27,23 +64,46 @@ header {
 }
 
 h1 {
-  /* color: #ffffff; */
   color: #3ff142;
-  /* color: deeppink; */
   font-size: 4rem;
-  margin: 1rem 0;
+  margin: 0;
 }
 
 h2 {
-  color: deeppink;
+  color: #ffffff;
   font-size: 4rem;
-  transform: translate(41%, -117%);
+  transform: translate(40%, -100%);
+  z-index: -1;
+}
+
+.links {
+  transform: translate(0, 0);
+}
+
+.off-white {
+  color: #c4c4c4;
+}
+
+.center {
+  text-align: center;
+}
+
+.mg-2 {
+  margin: 2rem 0;
+}
+
+.mg-2-5 {
+  margin: 2rem 0.5rem;
+}
+
+.mg-2-2 {
+  margin: 2rem 2rem;
 }
 
 h3 {
   color: #c4c4c4;
   font-size: 1.5rem;
-  /* margin: 1rem 0; */
+  transform: translateY(-300%);
 }
 
 .logo {
@@ -137,4 +197,29 @@ h3 {
 
 .hidden {
   display: none;
+}
+
+.login {
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1.15rem;
+  color: rgb(56, 56, 56);
+  border: none;
+  background-color: #3ff142;
+  padding: 0.75em 1.25rem;
+  box-shadow: 3px 3px 0 0 #ffffff;
+  transition: box-shadow 0.2s ease-in-out;
+  width: 30%;
+}
+
+#create-account {
+  background: none !important;
+  border: none;
+  padding: 0 !important;
+  color: #c4c4c4;
+  text-decoration: underline;
+  cursor: pointer;
+  text-align: center;
+  justify-content: center;
+  font-size: 1rem;
 }

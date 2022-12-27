@@ -38,5 +38,3 @@ async function createUrl(e) {
     error.innerHTML = `<p>${data.message}</p>`
   }
 }
-
-console.log(window.location.origin)

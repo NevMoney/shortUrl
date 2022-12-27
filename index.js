@@ -38,6 +38,11 @@ const schema = yup.object().shape({
   uniqueVisitors: yup.number().integer().default(0),
 })
 
+// allow for /links page to be loaded without error
+app.get('/links', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/links.html'))
+})
+
 // create url
 app.post('/url', async (req, res, next) => {
   let { slug, url } = req.body
