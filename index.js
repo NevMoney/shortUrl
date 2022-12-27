@@ -92,6 +92,9 @@ app.get('/:id', async (req, res) => {
       {
         $set: { visitors },
       },
+    )
+    await urls.update(
+      { slug },
       {
         $set: { uniqueVisitors: url.uniqueVisitors + 1 },
       },
@@ -105,18 +108,6 @@ app.get('/:id', async (req, res) => {
         console.log('IP address already exists')
         await urls.update(
           { slug },
-          {
-            $set: { visits: url.visits + 1 },
-          },
-        )
-      } else {
-        await urls.update(
-          {
-            slug,
-          },
-          {
-            $set: { uniqueVisitors: url.uniqueVisitors + 1 },
-          },
           {
             $set: { visits: url.visits + 1 },
           },
