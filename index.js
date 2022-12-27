@@ -8,6 +8,7 @@ const monk = require('monk')
 const rateLimit = require('express-rate-limit')
 const slowDown = require('express-slow-down')
 const nanoid = require('nanoid')
+const ip = require('ip')
 
 require('dotenv').config()
 
@@ -32,6 +33,9 @@ const schema = yup.object().shape({
     .trim()
     .matches(/^[\w\-]+$/i),
   url: yup.string().trim().url().required(),
+  visits: yup.number().integer().default(0),
+  visitors: yup.array().default([]),
+  uniqueVisitors: yup.number().integer().default(0),
 })
 
 // create url
@@ -55,9 +59,10 @@ app.post('/url', async (req, res, next) => {
     const newUrl = {
       slug,
       url,
+      visits: 0,
+      visitors: [],
+      uniqueVisitors: 0,
     }
-    console.log('newUrl', newUrl)
-    // res.json(newUrl)
     const created = await urls.insert(newUrl)
     console.log('created', created)
     res.json(created)
@@ -69,9 +74,54 @@ app.post('/url', async (req, res, next) => {
 // url redirect
 app.get('/:id', async (req, res) => {
   const { id: slug } = req.params
+  // get IP address of visitor
+  const visitorIP = ip.address()
+  console.log('visitorIP', visitorIP)
+  // get url from database
+  const url = await urls.findOne({ slug })
+  // check if IP address exists in visitors array
+  const visitor = url.visitors.find((visitor) => visitor === visitorIP)
+  console.log('visitor', visitor)
+  const visitors = url.visitors
+  console.log('visitors', visitors)
+  // if visitor is not inside the array, push the IP address into the array
+  if (!visitor) {
+    visitors.push(visitorIP)
+    await urls.update(
+      { slug },
+      {
+        $set: { visitors },
+      },
+      {
+        $set: { uniqueVisitors: url.uniqueVisitors + 1 },
+      },
+    )
+  }
+  console.log('visitors now', visitors)
+
   try {
-    const url = await urls.findOne({ slug })
     if (url) {
+      if (visitors.includes(visitorIP)) {
+        console.log('IP address already exists')
+        await urls.update(
+          { slug },
+          {
+            $set: { visits: url.visits + 1 },
+          },
+        )
+      } else {
+        await urls.update(
+          {
+            slug,
+          },
+          {
+            $set: { uniqueVisitors: url.uniqueVisitors + 1 },
+          },
+          {
+            $set: { visits: url.visits + 1 },
+          },
+        )
+      }
       res.redirect(url.url)
     }
     return res.status(404).sendFile(notFoundPath)
@@ -82,8 +132,49 @@ app.get('/:id', async (req, res) => {
   }
 })
 
-app.get('/url/:id', (req, res, next) => {
-  // todo: retrieve information about short url
+// retrieve information about short url
+app.get('/url/:id', async (req, res, next) => {
+  const { id: slug } = req.params
+  try {
+    const url = await urls.findOne({ slug })
+    if (url) {
+      console.log('url', url)
+      res.json(url)
+    }
+    return res.status(404).sendFile(notFoundPath)
+  } catch (error) {
+    next(error)
+  }
+})
+
+// track visits
+app.get('/url/:id/visits', async (req, res, next) => {
+  const { id: slug } = req.params
+  try {
+    const url = await urls.findOne({ slug })
+    if (url) {
+      console.log('url', url)
+      console.log('url.visits', url.visits)
+      res.json(url.visits)
+    }
+    return res.status(404).sendFile(notFoundPath)
+  } catch (error) {
+    next(error)
+  }
+})
+
+// track IP address of visitors
+app.get('/url/:id/visitors', async (req, res, next) => {
+  const { id: slug } = req.params
+  try {
+    const url = await urls.findOne({ slug })
+    if (url) {
+      res.json(url.visitors)
+    }
+    return res.status(404).sendFile(notFoundPath)
+  } catch (error) {
+    next(error)
+  }
 })
 
 // function to handle errors
