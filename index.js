@@ -44,37 +44,52 @@ app.get('/links', (req, res) => {
 })
 
 // create url
-app.post('/url', async (req, res, next) => {
-  let { slug, url } = req.body
-  try {
-    await schema.validate({
-      slug,
-      url,
-    })
-    if (!slug) {
-      slug = nanoid.nanoid(5)
-    } else {
-      // check if slug is in use
-      const existing = await urls.findOne({ slug })
-      if (existing) {
-        throw new Error('Slug in use. 🍔')
+app.post(
+  '/url',
+  slowDown({
+    windowMs: 30 * 1000, // 30 seconds
+    delayAfter: 1, // allow 1 request per 30 seconds, then...
+    delayMs: 500, // begin adding 500ms of delay per request above 1: 1*500ms, 2*500ms, 3*500ms, etc.
+  }),
+  rateLimit({
+    windowMs: 30 * 1000, // 30 seconds
+    max: 1, // start blocking after 1 request
+    handler: (req, res) => {
+      res.status(429).json({ message: 'Too Many Requests. Slow down! 🐌' })
+    },
+  }),
+  async (req, res, next) => {
+    let { slug, url } = req.body
+    try {
+      await schema.validate({
+        slug,
+        url,
+      })
+      if (!slug) {
+        slug = nanoid.nanoid(5)
+      } else {
+        // check if slug is in use
+        const existing = await urls.findOne({ slug })
+        if (existing) {
+          throw new Error('Slug in use. 🍔')
+        }
       }
+      slug = slug.toLowerCase()
+      const newUrl = {
+        slug,
+        url,
+        visits: 0,
+        visitors: [],
+        uniqueVisitors: 0,
+      }
+      const created = await urls.insert(newUrl)
+      console.log('created', created)
+      res.json(created)
+    } catch (error) {
+      next(error)
     }
-    slug = slug.toLowerCase()
-    const newUrl = {
-      slug,
-      url,
-      visits: 0,
-      visitors: [],
-      uniqueVisitors: 0,
-    }
-    const created = await urls.insert(newUrl)
-    console.log('created', created)
-    res.json(created)
-  } catch (error) {
-    next(error)
-  }
-})
+  },
+)
 
 // url redirect & track visits
 app.get('/:id', async (req, res) => {
