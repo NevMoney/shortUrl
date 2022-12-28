@@ -101,6 +101,31 @@ app.post('/login', async (req, res, next) => {
   }
 })
 
+// get user by id
+app.get('/user/:id', async (req, res, next) => {
+  const { id } = req.params
+  try {
+    const user = await users.findOne({ _id: id })
+    if (!user) {
+      res.status(404)
+      throw new Error('User not found 🤷‍♂️')
+    }
+    res.json(user)
+  } catch (error) {
+    next(error)
+  }
+})
+
+// get all urls
+app.get('/urls', async (req, res, next) => {
+  try {
+    const items = await urls.find({})
+    res.json(items)
+  } catch (error) {
+    next(error)
+  }
+})
+
 /**
  * ********************************************************************************************************
  * *****    *****  **********     *****

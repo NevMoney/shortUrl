@@ -34,22 +34,33 @@ registerStart.addEventListener('click', (e) => {
     const email = document.getElementById('email').value
     const password = document.getElementById('password').value
     console.log('email', email, 'password', password)
-    // const response = await fetch('/register', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({
-    //     email,
-    //     password,
-    //   }),
-    // })
-    // if (response.ok) {
-    //   console.log('response worked')
-    //   const data = await response.json()
-    //   console.log('data', data)
-    //   // append new url to the page to open in a new tab
-    //   newUrl.innerHTML = `<p><a href="${data.slug}" target="_blank">${window.location.origin}/${data.slug}</a></p>`
-    // }
+    const response = await fetch('/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    })
+    if (response.ok) {
+      console.log('response worked')
+      const data = await response.json()
+      console.log('data', data)
+      //show user all their links
+      const links = document.getElementById('url-list')
+      links.innerHTML = `
+            <h2>My Links</h2>
+            <ul>
+                ${data.links
+                  .map(
+                    (link) =>
+                      `<li><a href="${link.slug}" target="_blank">${window.location.origin}/${link.slug}</a></li>`,
+                  )
+                  .join('')}
+            </ul>
+        `
+    }
   })
 })
