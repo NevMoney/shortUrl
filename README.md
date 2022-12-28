@@ -13,6 +13,7 @@ Using Node.js and npm to create a short url service.
 [+] nodemon - development server
 [+] nanoid - generate random id
 [+] ip - used to track unique visitors
+[+] bcrypt - to encrypt passwords before storing them into DB
 
 [Front End](#front-end)
 - HTML

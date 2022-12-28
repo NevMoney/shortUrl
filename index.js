@@ -9,6 +9,7 @@ const rateLimit = require('express-rate-limit')
 const slowDown = require('express-slow-down')
 const nanoid = require('nanoid')
 const ip = require('ip')
+const bcrypt = require('bcrypt')
 
 require('dotenv').config()
 
@@ -58,21 +59,22 @@ app.post('/register', async (req, res, next) => {
   const { email, password } = req.body
   console.log('email', email, 'password', password)
   try {
+    // use crypto to encrypt the password before storing it
+    const hashedPassword = await bcrypt.hash(password, 10)
     await userSchema.validate({
       email,
       password,
     })
-    const user = {
-      email,
-      password,
-    }
-    const existing = await users.findOne({ email })
-    if (existing) {
+    const existingUser = await users.findOne({ email })
+    if (existingUser) {
       res.status(409)
-      throw new Error('Email already in use. Please login.')
+      throw new Error('User already exists. Please login.')
     }
-    const created = await users.insert(user)
-    res.json(created)
+    const user = await users.insert({
+      email,
+      password: hashedPassword,
+    })
+    res.json(user)
   } catch (error) {
     next(error)
   }
