@@ -13,8 +13,12 @@ const ip = require('ip')
 require('dotenv').config()
 
 const db = monk(process.env.MONGO_URI)
+
 const urls = db.get('urls')
 urls.createIndex('slug')
+
+const users = db.get('users')
+users.createIndex({ email: 1 }, { unique: true })
 
 const app = express()
 app.enable('trust proxy')
@@ -38,11 +42,77 @@ const schema = yup.object().shape({
   uniqueVisitors: yup.number().integer().default(0),
 })
 
+// need a schema for users
+const userSchema = yup.object().shape({
+  email: yup.string().trim().email().required(),
+  password: yup.string().trim().required(),
+})
+
 // allow for /links page to be loaded without error
 app.get('/links', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/links.html'))
 })
 
+// register new user
+app.post('/register', async (req, res, next) => {
+  const { email, password } = req.body
+  console.log('email', email, 'password', password)
+  try {
+    await userSchema.validate({
+      email,
+      password,
+    })
+    const user = {
+      email,
+      password,
+    }
+    const existing = await users.findOne({ email })
+    if (existing) {
+      res.status(409)
+      throw new Error('Email already in use. Please login.')
+    }
+    const created = await users.insert(user)
+    res.json(created)
+  } catch (error) {
+    next(error)
+  }
+})
+
+// login
+app.post('/login', async (req, res, next) => {
+  const { email, password } = req.body
+  try {
+    await userSchema.validate({
+      email,
+      password,
+    })
+    const user = await users.findOne({ email })
+    if (!user) {
+      res.status(401)
+      throw new Error('Invalid email')
+    }
+    if (user.password !== password) {
+      res.status(401)
+      throw new Error('Invalid password')
+    }
+    res.json(user)
+  } catch (error) {
+    next(error)
+  }
+})
+
+/**
+ * ********************************************************************************************************
+ * *****    *****  **********     *****
+ * *****    *****  *****   ****   *****
+ * *****    *****  *****   ****   *****
+ * *****    *****  *****  ****    *****
+ * *****    *****  ***** ****     *****
+ * *****    *****  *****  ****    *****
+ * **************  *****   ****   **************
+ *  ************   *****     **** **************
+ * ********************************************************************************************************
+ *  */
 // create url
 app.post(
   '/url',
@@ -65,6 +135,9 @@ app.post(
         slug,
         url,
       })
+      // if (url.includes('cdg.sh')) {
+      //   throw new Error('Stop it. 🛑');
+      // }
       if (!slug) {
         slug = nanoid.nanoid(5)
       } else {
