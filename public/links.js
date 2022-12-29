@@ -31,8 +31,8 @@ $('#login-form').submit(async (e) => {
   if (response.ok) {
     const data = await response.json()
     console.log('data', data)
-    // // change window.location.pathname to /links/user/:id, where :id is the user id
-    // window.location.pathname = `/user/${data._id}`
+    $('.error').empty()
+    $('.error').addClass('hidden')
 
     // store user id in local storage
     userId = data._id
@@ -61,9 +61,14 @@ $('#login-form').submit(async (e) => {
     )
     // append logout button to nav
     $('nav').append(`<button id="logout" class="linkBtn">Logout</button>`)
+  } else {
+    const data = await response.json()
+    console.log('data', data)
+    $('.error').empty()
+    $('.error').removeClass('hidden')
+    // show error message
+    $('.error').append(`<p>Ooops! Something went wrong! ${data.message}</p>`)
   }
-  // append logout button to nav
-  $('nav').append(`<button id="logout" class="linkBtn">Logout</button>`)
 })
 
 // log user out
@@ -262,40 +267,40 @@ const viewLinks = async () => {
 const deleteLink = async (slug) => {
   console.log('delete clicked')
   // send a delete request to the server : /user/:id/url/:slug
-  const response = await fetch(`/user/${userId}/url/${slug}`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-  if (response.ok) {
-    console.log('response worked')
-    const data = await response.json()
-    console.log('data', data)
-    // show user all their links
-    $('.url-list').empty()
-    $('p').remove()
-    $('.url-list').append(
-      `<p class="off-white mg-2-2">Your Link Has Been Deleted</p>
-      <p class="off-white mg-2-2">What else do you want to do now?</p>
-      <button id="crate-links" onclick="createLinks()" class="create">Create Links</button>
-      <button id="view-links" onclick="window.location.href='/view'" class="create">View My Links</button>`,
-    )
-  }
+  // const response = await fetch(`/user/${userId}/url/${slug}`, {
+  //   method: 'DELETE',
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //   },
+  // })
+  // if (response.ok) {
+  //   console.log('response worked')
+  //   const data = await response.json()
+  //   console.log('data', data)
+  //   // show user all their links
+  //   $('.url-list').empty()
+  //   $('p').remove()
+  //   $('.url-list').append(
+  //     `<p class="off-white mg-2-2">Your Link Has Been Deleted</p>
+  //     <p class="off-white mg-2-2">What else do you want to do now?</p>
+  //     <button id="crate-links" onclick="createLinks()" class="create">Create Links</button>
+  //     <button id="view-links" onclick="window.location.href='/view'" class="create">View My Links</button>`,
+  //   )
+  // }
 }
 
 const updateLink = async (slug) => {
   console.log('update clicked')
-  // clear the url-list div
-  $('.url-list').empty()
-  // append a form to the url-list div
-  $('.url-list').append(
-    `<form id="update-link-form" class="update-link-form">
-      <input class="input" type="url" name="url" id="user-url" placeholder="your url" required>
-      <br/>
-      <input class="input" type="text" name="slug" id="user-slug" placeholder="slug" required>
-      <br/>
-      <button class="create" type="button" onClick="updateTheLink('${slug}')">Update</button>
-    </form>`,
-  )
+  // // clear the url-list div
+  // $('.url-list').empty()
+  // // append a form to the url-list div
+  // $('.url-list').append(
+  //   `<form id="update-link-form" class="update-link-form">
+  //     <input class="input" type="url" name="url" id="user-url" placeholder="your url" required>
+  //     <br/>
+  //     <input class="input" type="text" name="slug" id="user-slug" placeholder="slug" required>
+  //     <br/>
+  //     <button class="create" type="button" onClick="updateTheLink('${slug}')">Update</button>
+  //   </form>`,
+  // )
 }
