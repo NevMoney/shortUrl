@@ -1,6 +1,5 @@
 console.log('links.js running')
 let userId
-console.log('userId', userId)
 
 // when start button clicked show login form
 $('#startBtn').click(() => {
@@ -71,7 +70,7 @@ $('#login-form').submit(async (e) => {
   }
 })
 
-// log user out
+// logout user
 $('nav').on('click', '#logout', async (e) => {
   e.preventDefault()
   const response = await fetch('/logout', {
@@ -88,6 +87,7 @@ $('nav').on('click', '#logout', async (e) => {
     $('#logout').remove()
     // clear the url-list div
     $('.url-list').empty()
+    $('.button-list').empty()
     // change <h1> text
     $('h1').text('Welcome to Shorten!')
     // change <p> text
