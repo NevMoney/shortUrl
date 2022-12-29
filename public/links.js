@@ -286,16 +286,4 @@ const deleteLink = async (slug) => {
 
 const updateLink = async (slug) => {
   console.log('update clicked')
-  // // clear the url-list div
-  // $('.url-list').empty()
-  // // append a form to the url-list div
-  // $('.url-list').append(
-  //   `<form id="update-link-form" class="update-link-form">
-  //     <input class="input" type="url" name="url" id="user-url" placeholder="your url" required>
-  //     <br/>
-  //     <input class="input" type="text" name="slug" id="user-slug" placeholder="slug" required>
-  //     <br/>
-  //     <button class="create" type="button" onClick="updateTheLink('${slug}')">Update</button>
-  //   </form>`,
-  // )
 }

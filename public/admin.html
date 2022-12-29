@@ -14,6 +14,7 @@
       href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
     />
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="links.css" />
     <title>Admin Pannel | short</title>
   </head>
   <body>
@@ -34,19 +35,8 @@
       <button class="create" id="usersBtn" type="submit">Users</button>
       <button class="create" id="linksBtn" type="submit">Links</button>
     </form>
-    <!-- <div id="user-list"></div> -->
-    <table class="styled-table">
-      <thead>
-        <tr>
-          <th>Link</th>
-          <th>Slug</th>
-          <th>Visitors</th>
-          <th>Unique Visitors</th>
-          <th>Created At</th>
-        </tr>
-      </thead>
-      <tbody id="link-list"></tbody>
-    </table>
+    <div id="user-list"></div>
+    <div id="link-list"></div>
     <div class="error hidden" id="error"></div>
     <script src="admin.js"></script>
   </body>
