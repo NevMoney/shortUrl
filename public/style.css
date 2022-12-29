@@ -119,7 +119,8 @@ h3 {
   text-align: center;
 }
 
-#newUrl {
+#newUrl,
+.newUrl {
   color: deeppink;
   padding: 0.5rem 1rem;
   margin-bottom: 1rem;
@@ -127,12 +128,14 @@ h3 {
   font-size: 1.5rem;
 }
 
-#newUrl a {
+#newUrl a,
+.newUrl a {
   color: inherit;
   cursor: pointer;
 }
 
-#newUrl a:hover {
+#newUrl a:hover,
+.newUrl a:hover {
   text-decoration: none;
 }
 
@@ -222,4 +225,36 @@ h3 {
   text-align: center;
   justify-content: center;
   font-size: 1rem;
+}
+
+.styled-table {
+  border-collapse: collapse;
+  margin: 25px 0;
+  font-size: 0.9em;
+  font-family: sans-serif;
+  min-width: 400px;
+  box-shadow: 0 0 20px rgba(232, 232, 232, 0.15);
+}
+
+.styled-table thead tr {
+  background-color: #c4c4c4;
+  color: #494542;
+  text-align: left;
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 12px 15px;
+}
+
+.styled-table tbody tr {
+  border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+  background-color: #f3f3f3;
+}
+
+.styled-table tbody tr:last-of-type {
+  border-bottom: 2px solid #3ff142;
 }

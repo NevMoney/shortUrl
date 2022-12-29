@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://code.jquery.com/jquery-3.6.3.min.js"
+      integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <title>Admin Pannel | short</title>
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/links.html">Links</a></li>
+        <li><a href="/admin.html" class="active">Admin</a></li>
+      </ul>
+    </nav>
+    <header>
+      <h1>Admin Pannel</h1>
+      <p class="off-white center mg-2-2">
+        Find Users, Links, and a whole lot of info about your business.
+      </p>
+    </header>
+    <form id="admin-form" class="admin-form">
+      <button class="create" id="usersBtn" type="submit">Users</button>
+      <button class="create" id="linksBtn" type="submit">Links</button>
+    </form>
+    <!-- <div id="user-list"></div> -->
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>Link</th>
+          <th>Slug</th>
+          <th>Visitors</th>
+          <th>Unique Visitors</th>
+          <th>Created At</th>
+        </tr>
+      </thead>
+      <tbody id="link-list"></tbody>
+    </table>
+    <div class="error hidden" id="error"></div>
+    <script src="admin.js"></script>
+  </body>
+</html>

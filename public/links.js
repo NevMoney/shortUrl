@@ -1,14 +1,101 @@
 console.log('links.js running')
-const loginStart = document.getElementById('login-start')
-const loginForm = document.getElementById('login-form')
-const registerStart = document.getElementById('create-account')
+let userId
+console.log('userId', userId)
 
-loginStart.addEventListener('click', () => {
-  loginForm.classList.remove('hidden')
-  loginStart.classList.add('hidden')
+// when start button clicked show login form
+$('#startBtn').click(() => {
+  $('#login-form').removeClass('hidden')
+  $('#startBtn').addClass('hidden')
 })
 
-registerStart.addEventListener('click', (e) => {
+$('#loginBtn').click(() => {
+  $('#login-form').removeClass('hidden')
+  $('#startBtn').addClass('hidden')
+})
+
+// when login button clicked
+$('#login-form').submit(async (e) => {
+  e.preventDefault()
+  const email = $('#login-email').val()
+  const password = $('#login-password').val()
+  const response = await fetch('/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email,
+      password,
+    }),
+  })
+  if (response.ok) {
+    const data = await response.json()
+    console.log('data', data)
+    // // change window.location.pathname to /links/user/:id, where :id is the user id
+    // window.location.pathname = `/user/${data._id}`
+
+    // store user id in local storage
+    userId = data._id
+
+    // hide login form
+    $('#login-form').addClass('hidden')
+    // take first part of the email
+    let greetingName = data.email.split('@')[0]
+    // capitalize first letter
+    greetingName = greetingName.charAt(0).toUpperCase() + greetingName.slice(1)
+    // eliminate h2
+    $('h2').remove()
+    // change <h1> text
+    $('h1').text(`Welcome, ${greetingName}!`)
+
+    // change <p> text
+    $('p').text(
+      'Now you can create your own short links and view data about them',
+    )
+
+    // in the url-list div, create view and create buttons
+    $('.url-list').append(
+      `<button id="crate-links" onclick="createLinks()" class="create">Create Links</button>
+      <button id="view-links" onclick="window.location.href='/view'" class="create">View My Links</button>
+      `,
+    )
+    // append logout button to nav
+    $('nav').append(`<button id="logout" class="linkBtn">Logout</button>`)
+  }
+  // append logout button to nav
+  $('nav').append(`<button id="logout" class="linkBtn">Logout</button>`)
+})
+
+// log user out
+$('nav').on('click', '#logout', async (e) => {
+  e.preventDefault()
+  const response = await fetch('/logout', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+  if (response.ok) {
+    console.log('response worked')
+    const data = await response.json()
+    console.log('data', data)
+    // change logout button to login button
+    $('#logout').remove()
+    // clear the url-list div
+    $('.url-list').empty()
+    // change <h1> text
+    $('h1').text('Welcome to Shorten!')
+    // change <p> text
+    $('p').text(
+      'Whether you have one or one thousand links, having proper management and information is the key to success. Here you can view all of your links and their information. Create an account or login to get started',
+    )
+    // show start button
+    $('#startBtn').removeClass('hidden')
+  }
+})
+
+// when create account button clicked
+$('#create-account').click((e) => {
   e.preventDefault()
   registerStart.classList.add('hidden')
   loginForm.classList.add('hidden')
@@ -64,3 +151,56 @@ registerStart.addEventListener('click', (e) => {
     }
   })
 })
+
+// function to create links as a logged in user
+const createLinks = async () => {
+  console.log('create clicked')
+  // clear the url-list div
+  $('.url-list').empty()
+  // append a form to the url-list div
+  $('.url-list').append(
+    `<form id="create-link-form" class="create-link-form">
+      <input class="input" type="url" name="url" id="user-url" placeholder="your url" required>
+      <br/>
+      <input class="input" type="text" name="slug" id="user-slug" placeholder="slug" required>
+      <br/>
+      <button class="create" type="button" onClick="shrinkTheLink()">Create</button>
+    </form>`,
+  )
+}
+
+const shrinkTheLink = async () => {
+  console.log('shrink clicked')
+  // get the url input
+  const url = $('#user-url').val()
+  // get the slug input
+  const slug = $('#user-slug').val()
+  console.log('url', url, 'slug', slug, 'userId', userId)
+  // send a post request to the server
+  const response = await fetch(`/user/${userId}/url`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      url: url,
+      slug: slug || undefined,
+    }),
+  })
+  if (response.ok) {
+    console.log('response worked')
+    const data = await response.json()
+    console.log('data', data)
+    // show user all their links
+    $('.url-list').empty()
+    $('p').remove()
+    $('.url-list').append(
+      `<p class="off-white mg-2-2">Your New Link:</p>
+      <p><a href="${data.slug}" class="newUrl" target="_blank">${window.location.origin}/${data.slug}</a></p>
+      
+      <p class="off-white mg-2-2">What else do you want to do now?</p>
+      <button id="crate-links" onclick="createLinks()" class="create">Create Links</button>
+      <button id="view-links" onclick="window.location.href='/view'" class="create">View My Links</button>`,
+    )
+  }
+}

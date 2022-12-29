@@ -4,11 +4,17 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://code.jquery.com/jquery-3.6.3.min.js"
+      integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
+      crossorigin="anonymous"
+    ></script>
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
     />
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="links.css" />
     <title>Link Management | short</title>
   </head>
   <body>
@@ -16,16 +22,18 @@
       <ul>
         <li><a href="/">Home</a></li>
         <li><a href="/links.html" class="active">Links</a></li>
+        <li><a href="/admin.html">Admin</a></li>
       </ul>
     </nav>
-    <h2 class="links">Link Management</h2>
+    <h1 class="links">Link Management</h1>
+    <h2 class="links" id="title-a">a</h2>
     <p class="off-white center mg-2-2">
       Whether you have one or one thousand links, having proper management and
       information is the key to success. Here you can view all of your links and
-      their information.
+      their information. Create an account or login to get started.
     </p>
     <!-- on the links page, have button for user to log in and upon logging in they can view their links info -->
-    <button class="login" id="login-start">Log In</button>
+    <button class="login" id="startBtn">Start for Free</button>
     <form id="login-form" class="login-form hidden">
       <input
         class="input"
