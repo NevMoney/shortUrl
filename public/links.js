@@ -56,7 +56,7 @@ $('#login-form').submit(async (e) => {
     // in the url-list div, create view and create buttons
     $('.url-list').append(
       `<button id="crate-links" onclick="createLinks()" class="create">Create Links</button>
-      <button id="view-links" onclick="window.location.href='/view'" class="create">View My Links</button>
+      <button id="view-links" onclick="viewLinks()" class="create">View My Links</button>
       `,
     )
     // append logout button to nav
@@ -202,5 +202,78 @@ const shrinkTheLink = async () => {
       <button id="crate-links" onclick="createLinks()" class="create">Create Links</button>
       <button id="view-links" onclick="window.location.href='/view'" class="create">View My Links</button>`,
     )
+  }
+}
+
+const viewLinks = async () => {
+  console.log('view clicked')
+  // clear the url-list div
+  $('.url-list').empty()
+  // send a get request to the server : /user/:id/urls
+  const response = await fetch(`/user/${userId}/urls`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+  if (response.ok) {
+    const data = await response.json()
+    console.log('data', data)
+
+    // // need to go through the data and create a list of links
+    // const links = data.map((link) => {
+    //   return `<li><a href="${link.slug}" target="_blank">${window.location.origin}/${link.slug}</a></li>`
+    // })
+    // const urls = data.map((link) => {
+    //   return `<li><a href="${link.url}" target="_blank">${link.url}</a></li>`
+    // })
+    // const slugs = data.map((link) => {
+    //   return `<li>${link.slug}</li>`
+    // })
+    // const clicks = data.map((link) => {
+    //   return `<li>${link.visits}</li>`
+    // })
+    // const uniqueVisitors = data.map((link) => {
+    //   return `<li>${link.uniqueVisitors}</li>`
+    // })
+
+    // create a table to display the links, urls, slugs, clicks, and unique visitors and a delete and update button for each item then append it to the url-list div
+    data.forEach((element) => {
+      $('.url-list').append(
+        `<table class="styled-table">
+          <tr>
+            <td><a href="${element.slug}" target="_blank">${window.location.origin}/${element.slug}</a></td>
+            <td><a href="${element.url}" target="_blank">${element.url}</a></td>
+            <td>${element.slug}</td>
+            <td>${element.visits}</td>
+            <td>${element.uniqueVisitors}</td>
+            <td><button class="delete" type="button" onClick="deleteLink(${element.id})">Delete</button></td>
+            <td><button class="update" type="button" onClick="updateLink(${element.id})">Update</button></td>
+          </tr>
+        </table>`,
+      )
+    })
+    // $('.url-list').append(
+    //   `<table class="table">
+    //     <tr>
+    //       <th>Links</th>
+    //       <th>Urls</th>
+    //       <th>Slugs</th>
+    //       <th>Clicks</th>
+    //       <th>Unique Visitors</th>
+    //       <th>Delete</th>
+    //       <th>Update</th>
+    //     </tr>
+    //     <tr>
+    //       <td>${links.join('')}</td>
+    //       <td>${urls.join('')}</td>
+    //       <td>${slugs.join('')}</td>
+    //       <td>${clicks.join('')}</td>
+    //       <td>${uniqueVisitors.join('')}</td>
+    //       <td><button class="delete" onclick="deleteLink()">Delete</button></td>
+    //       <td><button class="update" onclick="updateLink()">Update</button></td>
+    //     </tr>
+    //   </table>`,
+    // )
   }
 }

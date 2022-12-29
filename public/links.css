@@ -50,3 +50,15 @@
   background-color: #c4c4c4;
   box-shadow: 0 0 10px 5px rgba(232, 232, 232, 0.2);
 }
+
+li {
+  list-style-type: none;
+}
+
+a {
+  text-decoration: none;
+  color: deeppink;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
