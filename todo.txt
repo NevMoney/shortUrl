@@ -7,17 +7,12 @@ TODO:
 [x] user view all urls
 - fix display
 [] user edit url
-[] user delete url
+[x] user delete url
 [x] admin view all urls
 - fix display
 [] admin view all users
 [] admin login
 [] admin logout
 [] verify admin in DB before allowing functions
-[] admin edit user
-[] admin delete user
-[] admin edit url
-[] admin delete url
 [] user view uniqueVisitors location by country
 [] consistently know if user is logged in
-
