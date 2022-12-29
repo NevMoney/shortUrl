@@ -162,6 +162,7 @@ const createLinks = async () => {
   console.log('create clicked')
   // clear the url-list div
   $('.url-list').empty()
+  $('.button-list').empty()
   // append a form to the url-list div
   $('.url-list').append(
     `<form id="create-link-form" class="create-link-form">
@@ -205,7 +206,7 @@ const shrinkTheLink = async () => {
       
       <p class="off-white mg-2-2">What else do you want to do now?</p>
       <button id="crate-links" onclick="createLinks()" class="create">Create Links</button>
-      <button id="view-links" onclick="window.location.href='/view'" class="create">View My Links</button>`,
+      <button id="view-links" onclick="viewLinks()" class="create">View My Links</button>`,
     )
   }
 }
@@ -267,26 +268,20 @@ const viewLinks = async () => {
 const deleteLink = async (slug) => {
   console.log('delete clicked')
   // send a delete request to the server : /user/:id/url/:slug
-  // const response = await fetch(`/user/${userId}/url/${slug}`, {
-  //   method: 'DELETE',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //   },
-  // })
-  // if (response.ok) {
-  //   console.log('response worked')
-  //   const data = await response.json()
-  //   console.log('data', data)
-  //   // show user all their links
-  //   $('.url-list').empty()
-  //   $('p').remove()
-  //   $('.url-list').append(
-  //     `<p class="off-white mg-2-2">Your Link Has Been Deleted</p>
-  //     <p class="off-white mg-2-2">What else do you want to do now?</p>
-  //     <button id="crate-links" onclick="createLinks()" class="create">Create Links</button>
-  //     <button id="view-links" onclick="window.location.href='/view'" class="create">View My Links</button>`,
-  //   )
-  // }
+  const response = await fetch(`/user/${userId}/url/${slug}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+  if (response.ok) {
+    console.log('response worked')
+    const data = await response.json()
+    console.log('data', data)
+    // show user all their links
+    alert(`Link ${slug} deleted. ${data.message}`)
+    viewLinks()
+  }
 }
 
 const updateLink = async (slug) => {

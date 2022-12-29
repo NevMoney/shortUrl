@@ -283,8 +283,10 @@ app.put('/user/:id/url/:slug', async (req, res, next) => {
   try {
     // find user
     const user = await users.findOne({ _id: id })
+    console.log('user', user)
     // find url
     const url = await urls.findOne({ slug })
+    console.log('url', url)
     // verify that user owns url
     if (user.urls.includes(url._id)) {
       // update url
@@ -308,18 +310,21 @@ app.delete('/user/:id/url/:slug', async (req, res, next) => {
     const url = await urls.findOne({ slug })
     console.log('user.urls', user.urls)
     console.log('url._id', url._id)
+
+    const slugToRemove = user.urls.find((url) => url.slug === slug)
     const toDelete = user.urls.find((url) => url._id === url._id)
-    console.log('toDelete', toDelete)
-    // delete url
+
+    // update user url array
+    const removeFromUser = await users.update(
+      { _id: id },
+      { $pull: { urls: slugToRemove } },
+    )
+    console.log('removeFromUser', removeFromUser)
+
+    // delete url from database
     const deleted = await urls.remove({ slug })
     res.json(deleted)
     console.log('deleted', deleted)
-    // remove url from user
-    const updated = await users.update(
-      { _id: id },
-      { $pull: { urls: url._id } },
-    )
-    console.log('updated', updated)
   } catch (error) {
     next(error)
   }
