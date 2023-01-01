@@ -59,6 +59,8 @@ $('#login-form').submit(async (e) => {
 
     // store token as cookie in browser for 1 day
     document.cookie = `token=${data.token}; max-age=86400`
+    // set token in local storage
+    localStorage.setItem('userId', data.user._id)
 
     // if the user is admin, show admin link
     if (data.user.isAdmin) {
@@ -70,7 +72,7 @@ $('#login-form').submit(async (e) => {
     $('.error').empty()
     $('.error').removeClass('hidden')
     // show error message
-    $('.error').append(`<p>Ooops! Something went wrong! ${data.message}</p>`)
+    $('.error').append(`<p>Ooops! ${data.message}</p>`)
   }
 })
 
@@ -113,14 +115,16 @@ $('nav').on('click', '#logout', async (e) => {
 
     // remove user id from local storage
     localStorage.removeItem('userId')
+
+    // remove admin link
+    $('.adminLink').addClass('hidden')
   }
 })
 
 // when create account button clicked
 $('#create-account').click((e) => {
   e.preventDefault()
-  registerStart.classList.add('hidden')
-  loginForm.classList.add('hidden')
+  $('#login-form').addClass('hidden')
 
   // create a form for registering
   const register = document.getElementById('register')
@@ -136,6 +140,13 @@ $('#create-account').click((e) => {
         <button class="create" type="submit">Register</button>
     `
   register.appendChild(registerForm)
+
+  $('.register-form').submit(async (e) => {
+    e.preventDefault()
+    const email = $('#email').val()
+    const password = $('#password').val()
+    console.log('email', email, 'password', password)
+  })
 
   // add event listener to the form
   registerForm.addEventListener('submit', async (e) => {
@@ -157,19 +168,41 @@ $('#create-account').click((e) => {
       console.log('response worked')
       const data = await response.json()
       console.log('data', data)
-      //show user all their links
-      const links = document.getElementById('url-list')
-      links.innerHTML = `
-            <h2>My Links</h2>
-            <ul>
-                ${data.links
-                  .map(
-                    (link) =>
-                      `<li><a href="${link.slug}" target="_blank">${window.location.origin}/${link.slug}</a></li>`,
-                  )
-                  .join('')}
-            </ul>
-        `
+      // hide register form
+      registerForm.classList.add('hidden')
+      // take first part of the email
+      let greetingName = data.user.email.split('@')[0]
+      // capitalize first letter
+      greetingName =
+        greetingName.charAt(0).toUpperCase() + greetingName.slice(1)
+      // eliminate h2
+      $('h2').remove()
+      // change <h1> text
+      $('h1').text(`Welcome, ${greetingName}!`)
+
+      // change <p> text
+      $('p').text(
+        'Now you can create your own short links and view data about them',
+      )
+
+      // in the url-list div, create view and create buttons
+      $('.button-list').append(
+        `<button id="crate-links" onclick="createLinks()" class="create">Create Links</button>
+      <button id="view-links" onclick="viewLinks()" class="create">View My Links</button>
+      `,
+      )
+      // append logout button to nav
+      $('nav').append(`<button id="logout" class="linkBtn">Logout</button>`)
+
+      // store token as cookie in browser for 1 day
+      document.cookie = `token=${data.token}; max-age=86400`
+      // store user id in local storage
+      localStorage.setItem('userId', data.user._id)
+
+      // if the user is admin, show admin link
+      if (data.user.isAdmin) {
+        $('.adminLink').removeClass('hidden')
+      }
     }
   })
 })
@@ -232,6 +265,7 @@ const viewLinks = async () => {
   console.log('view clicked')
   // clear the url-list div
   $('.url-list').empty()
+  userId = localStorage.getItem('userId')
   // send a get request to the server : /user/:id/urls
   const response = await fetch(`/user/${userId}/urls`, {
     method: 'GET',
@@ -304,3 +338,57 @@ const deleteLink = async (slug) => {
 const updateLink = async (slug) => {
   console.log('update clicked')
 }
+
+// not really working...
+const isLoggedIn = async () => {
+  // get cookie
+  const cookie = document.cookie || ''
+  console.log('cookie', cookie)
+
+  if (cookie) {
+    // find the userId that corresponds to the token inside the server
+    const response = await fetch('/user', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${cookie}`,
+      },
+    })
+    console.log('response', response)
+    if (response.ok) {
+      const data = await response.json()
+      console.log('data', data)
+      // if user is logged in, show the user their links
+      if (data.user) {
+        console.log('user is logged in')
+        // hide the login and signup buttons
+        $('#login').addClass('hidden')
+
+        let greetingName = data.user.email.split('@')[0]
+        greetingName =
+          greetingName.charAt(0).toUpperCase() + greetingName.slice(1)
+
+        $('h2').remove()
+        $('h1').text(`Welcome, ${greetingName}!`)
+        $('p').text(
+          'Now you can create your own short links and view data about them',
+        )
+
+        // in the url-list div, create view and create buttons
+        $('.button-list').append(
+          `<button id="crate-links" onclick="createLinks()" class="create">Create Links</button>
+      <button id="view-links" onclick="viewLinks()" class="create">View My Links</button>
+      `,
+        )
+        // append logout button to nav
+        $('nav').append(`<button id="logout" class="linkBtn">Logout</button>`)
+
+        if (data.user.isAdmin) {
+          $('.adminLink').removeClass('hidden')
+        }
+      }
+    }
+  }
+}
+
+isLoggedIn()

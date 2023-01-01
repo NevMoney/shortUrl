@@ -11,8 +11,8 @@ TODO:
 [x] admin view all urls
 - fix display
 [x] admin view all users
-[] admin login
-[] admin logout
+[x] admin login
+[x] admin logout
 [] verify admin in DB before allowing functions
 [] user view uniqueVisitors location by country
 [] consistently know if user is logged in

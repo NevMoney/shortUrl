@@ -66,6 +66,63 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/admin.html'))
 })
 
+// allow for admin to delete a user
+app.delete('/admin/:requesterId/user/:id', async (req, res, next) => {
+  const { id, requesterId } = req.params
+  // need to check if person deleting is an admin
+  const { isAdmin } = await users.findOne({ _id: requesterId })
+  if (!isAdmin) {
+    res.status(403)
+    throw new Error('Not authorized 🎟️')
+  } else {
+    try {
+      const user = await users.findOne({ _id: id })
+      if (user) {
+        await users.remove({ _id: id })
+        res.json({ message: 'User deleted 🎉' })
+      } else {
+        res.status(404)
+        throw new Error('User not found 🤷‍♂️')
+      }
+    } catch (error) {
+      next(error)
+    }
+  }
+})
+
+// allow for admin to update a user
+app.put('/user/:id', async (req, res, next) => {
+  const { id } = req.params
+  // need to check if person updating is an admin
+  const { isAdmin } = req.body
+  if (!isAdmin) {
+    res.status(403)
+    throw new Error('Not authorized 🎟️')
+  } else {
+    try {
+      const user = await users.findOne({ _id: id })
+      if (user) {
+        await users.update(
+          {
+            _id: id,
+          },
+          {
+            $set: {
+              isAdmin: req.body.isAdmin,
+            },
+          },
+        )
+        res.json({ message: 'User updated 🎉' })
+      } else {
+        res.status(404)
+        throw new Error('User not found 🤷‍♂️')
+      }
+    } catch (error) {
+      next(error)
+    }
+  }
+})
+
 app.get('/user/:id', async (req, res, next) => {
   const { id } = req.params
   try {

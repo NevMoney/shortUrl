@@ -5,45 +5,35 @@ const isAdmin = async () => {
   const response = await fetch('/users')
   const data = await response.json()
   console.log('data', data)
-  // const user = data.find((user) => user._id === localStorage.getItem('userId'))
-  const admin = data.find((user) => user.isAdmin === true)
-  console.log('admin', admin)
+  const user = data.find((user) => user._id === localStorage.getItem('userId'))
+  console.log('user', user)
+  if (user.isAdmin === true) {
+    console.log('user is admin')
+    return true
+  } else {
+    console.log('user is not admin')
+    return false
+  }
 }
+
 isAdmin()
 
 $('#usersBtn').click(async (e) => {
   e.preventDefault()
   console.log('fetching users')
+  let userUrls
   const users = await fetch('/users')
   const data = await users.json()
   console.log('data', data)
-  // data.forEach((user) => {
-  //   if (user.urls === undefined) {
-  //     $('#user-list').append(`
-  //     <table class="styled-table">
-  //     <tbody>
-  //       <tr>
-  //         <td>${user.email}</td>
-  //         <td>0</td>
-  //         <td>${user._id}</td>
-  //       </tr>
-  //       </tbody>
-  //     </table>
-  //     `)
-  //   } else {
-  //     $('#user-list').append(`
-  //     <table class="styled-table">
-  //     <tbody>
-  //       <tr>
-  //         <td>${user.email}</td>
-  //         <td>${user.urls.length}</td>
-  //         <td>${user._id}</td>
-  //       </tr>
-  //       </tbody>
-  //     </table>
-  //     `)
-  //   }
-  // })
+  data.forEach((user) => {
+    if (user.urls === undefined || user.urls === null || user.urls === []) {
+      userUrls = 0
+    } else {
+      userUrls = user.urls.length
+    }
+    console.log(`userurls ${user.email}`, userUrls)
+    return userUrls
+  })
   $('#user-list').empty()
   $('#user-list').append(
     `<table class="table styled-table">
@@ -52,6 +42,7 @@ $('#usersBtn').click(async (e) => {
           <th>Email</th>
           <th>Number of Links</th>
           <th>User Id</th>
+          <th>Admin?</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -60,8 +51,9 @@ $('#usersBtn').click(async (e) => {
       <tbody>
       <tr>
         <td class="off-white">${user.email}</td>
-        <td class="off-white">${user.urls.length}</td>
+        <td class="off-white">${userUrls}</td>
         <td class="off-white">${user._id}</td>
+        <td class="off-white">${user.isAdmin}</td>
         <td>
           <button class="userActionBtn center" onClick="deleteUser('${user._id}')">Delete</button>
           <button class="userActionBtn center" onClick="updateUser('${user._id}')">Update</button>
@@ -114,3 +106,37 @@ $('#linksBtn').click(async (e) => {
     `,
   )
 })
+
+const deleteUser = async (id) => {
+  console.log(`deleting user ${id}`)
+  // verify that user is admin
+  const admin = await isAdmin()
+  if (admin) {
+    // node uses app.delete('/admin/:requesterId/user/:id', async (req, res, next) => {
+    let adminId = localStorage.getItem('userId')
+    const response = await fetch(`admin/${adminId}/user/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    console.log('response', response)
+    const data = await response.json()
+    console.log('data', data)
+    alert('User successfully deleted 🙌')
+    // reload page
+    location.reload()
+  } else {
+    alert('You are not authorized to perform this action')
+  }
+}
+
+const updateUser = async (id) => {
+  console.log('updating user')
+  const response = await fetch(`/users/${id}`, {
+    method: 'PUT',
+  })
+  const data = await response.json()
+  console.log('data', data)
+  location.reload()
+}
