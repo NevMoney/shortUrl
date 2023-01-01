@@ -52,6 +52,7 @@ const userSchema = yup.object().shape({
   email: yup.string().trim().email().required(),
   password: yup.string().trim().required(),
   urls: yup.array().default([]),
+  isAdmin: yup.boolean().default(false),
 })
 
 // allow for /links page to be loaded without error
@@ -76,7 +77,7 @@ app.get('/user/:id', async (req, res, next) => {
 
 // register new user
 app.post('/register', async (req, res, next) => {
-  const { email, password } = req.body
+  const { email, password, isAdmin } = req.body
   console.log('email', email, 'password', password)
   try {
     // use crypto to encrypt the password before storing it
@@ -93,6 +94,8 @@ app.post('/register', async (req, res, next) => {
     const user = await users.insert({
       email,
       password: hashedPassword,
+      urls: [],
+      isAdmin: isAdmin || false,
     })
     res.json(user)
   } catch (error) {
