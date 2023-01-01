@@ -10,6 +10,7 @@ const slowDown = require('express-slow-down')
 const nanoid = require('nanoid')
 const ip = require('ip')
 const bcrypt = require('bcrypt')
+const generateToken = require('./utils/generateToken')
 
 require('dotenv').config()
 
@@ -97,7 +98,12 @@ app.post('/register', async (req, res, next) => {
       urls: [],
       isAdmin: isAdmin || false,
     })
-    res.json(user)
+    // need to add token from generateToken.js before sending the user
+    let token = generateToken(user._id)
+    res.json({
+      user,
+      token,
+    })
   } catch (error) {
     next(error)
   }
@@ -122,7 +128,11 @@ app.post('/login', async (req, res, next) => {
       res.status(401)
       throw new Error('Invalid password 🤷‍♂️')
     }
-    res.json(user)
+    let token = generateToken(user._id)
+    res.json({
+      user,
+      token,
+    })
   } catch (error) {
     next(error)
   }
