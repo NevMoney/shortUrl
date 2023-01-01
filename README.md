@@ -14,6 +14,7 @@ Using Node.js and npm to create a short url service.
 [+] nanoid - generate random id
 [+] ip - used to track unique visitors
 [+] bcrypt - to encrypt passwords before storing them into DB
+[+] jsonwebtoken - tracking if user is logged in
 
 [Front End](#front-end)
 - HTML
