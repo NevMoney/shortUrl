@@ -7,11 +7,6 @@ $('#startBtn').click(() => {
   $('#startBtn').addClass('hidden')
 })
 
-$('#loginBtn').click(() => {
-  $('#login-form').removeClass('hidden')
-  $('#startBtn').addClass('hidden')
-})
-
 // when login button clicked
 $('#login-form').submit(async (e) => {
   e.preventDefault()
@@ -35,11 +30,12 @@ $('#login-form').submit(async (e) => {
 
     // store user id in local storage
     userId = data._id
+    localStorage.setItem('userId', data._id)
 
     // hide login form
     $('#login-form').addClass('hidden')
     // take first part of the email
-    let greetingName = data.email.split('@')[0]
+    let greetingName = data.user.email.split('@')[0]
     // capitalize first letter
     greetingName = greetingName.charAt(0).toUpperCase() + greetingName.slice(1)
     // eliminate h2
@@ -60,6 +56,14 @@ $('#login-form').submit(async (e) => {
     )
     // append logout button to nav
     $('nav').append(`<button id="logout" class="linkBtn">Logout</button>`)
+
+    // store token as cookie in browser for 1 day
+    document.cookie = `token=${data.token}; max-age=86400`
+
+    // if the user is admin, show admin link
+    if (data.user.isAdmin) {
+      $('.adminLink').removeClass('hidden')
+    }
   } else {
     const data = await response.json()
     console.log('data', data)
@@ -96,6 +100,19 @@ $('nav').on('click', '#logout', async (e) => {
     )
     // show start button
     $('#startBtn').removeClass('hidden')
+
+    // remove token cookie
+    document.cookie
+      .split(';')
+      .forEach(
+        (c) =>
+          (document.cookie = c
+            .replace(/^ +/, '')
+            .replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`)),
+      )
+
+    // remove user id from local storage
+    localStorage.removeItem('userId')
   }
 })
 
