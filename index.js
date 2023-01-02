@@ -46,6 +46,8 @@ const schema = yup.object().shape({
   visits: yup.number().integer().default(0),
   visitors: yup.array().default([]),
   uniqueVisitors: yup.number().integer().default(0),
+  createdAt: yup.date().default(() => new Date()),
+  updatedAt: yup.date().default(() => new Date()),
 })
 
 // need a schema for users
@@ -54,6 +56,8 @@ const userSchema = yup.object().shape({
   password: yup.string().trim().required(),
   urls: yup.array().default([]),
   isAdmin: yup.boolean().default(false),
+  createdAt: yup.date().default(() => new Date()),
+  updatedAt: yup.date().default(() => new Date()),
 })
 
 // allow for /links page to be loaded without error
@@ -115,6 +119,10 @@ app.patch('/admin/:requesterId/user/:id', async (req, res, next) => {
             $set: {
               [field]: newValue,
             },
+            // update the updatedAt field
+            $currentDate: {
+              updatedAt: true,
+            },
           },
         )
         res.json({
@@ -159,6 +167,8 @@ app.post('/register', async (req, res, next) => {
       password: hashedPassword,
       urls: [],
       isAdmin: isAdmin || false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     })
     // need to add token from generateToken.js before sending the user
     let token = generateToken(user._id)
@@ -296,6 +306,8 @@ app.post(
         visits: 0,
         visitors: [],
         uniqueVisitors: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }
       const created = await urls.insert(newUrl)
       console.log('created', created)
@@ -334,6 +346,8 @@ app.post('/user/:id/url', async (req, res, next) => {
       visits: 0,
       visitors: [],
       uniqueVisitors: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     }
     const created = await urls.insert(newUrl)
     console.log('created', created)
@@ -365,7 +379,11 @@ app.put('/user/:id/url/:slug', async (req, res, next) => {
     // verify that user owns url
     if (user.urls.includes(url._id)) {
       // update url
-      const updated = await urls.update({ slug }, { $set: req.body })
+      const updated = await urls.update(
+        { slug },
+        { $set: req.body },
+        { $currentDate: { updatedAt } },
+      )
       res.json(updated)
       console.log('updated', updated)
     } else {

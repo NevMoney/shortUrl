@@ -24,6 +24,7 @@
         <li><a href="/links.html" class="active">Links</a></li>
         <li><a href="/admin.html" class="adminLink hidden">Admin</a></li>
       </ul>
+      <button id="logout" class="linkBtn hidden">Logout</button>
     </nav>
     <h1 class="links">Link Management</h1>
     <h2 class="links" id="title-a">a</h2>
@@ -40,7 +41,7 @@
         type="email"
         name="email"
         id="login-email"
-        placeholder="Registered email"
+        placeholder="Account email"
       />
       <br />
       <input
@@ -48,7 +49,7 @@
         type="password"
         name="password"
         id="login-password"
-        placeholder="password"
+        placeholder="Account password"
       />
       <br />
       <button class="create" id="loginBtn">Log In</button>
@@ -61,5 +62,6 @@
     <div class="url-list"></div>
 
     <script src="links.js"></script>
+    <script src="verification.js"></script>
   </body>
 </html>

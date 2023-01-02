@@ -1,5 +1,5 @@
 #title-a {
-  transform: translate(31%, -102%);
+  transform: translate(30%, -186%);
 }
 
 .styled-table {
@@ -77,4 +77,8 @@ a {
   color: #494542;
   background-color: #c4c4c4;
   box-shadow: 0 0 10px 5px rgba(232, 232, 232, 0.2);
+}
+
+.links {
+  margin-top: 5rem;
 }

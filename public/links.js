@@ -54,8 +54,6 @@ $('#login-form').submit(async (e) => {
       <button id="view-links" onclick="viewLinks()" class="create">View My Links</button>
       `,
     )
-    // append logout button to nav
-    $('nav').append(`<button id="logout" class="linkBtn">Logout</button>`)
 
     // store token as cookie in browser for 1 day
     document.cookie = `token=${data.token}; max-age=86400`
@@ -191,8 +189,6 @@ $('#create-account').click((e) => {
       <button id="view-links" onclick="viewLinks()" class="create">View My Links</button>
       `,
       )
-      // append logout button to nav
-      $('nav').append(`<button id="logout" class="linkBtn">Logout</button>`)
 
       // store token as cookie in browser for 1 day
       document.cookie = `token=${data.token}; max-age=86400`
@@ -277,12 +273,19 @@ const viewLinks = async () => {
     const data = await response.json()
     console.log('data', data)
 
-    $('.url-list').empty()
-    $('.url-list').removeClass('hidden')
-    // create a table to display the links, urls, slugs, clicks, and unique visitors and a delete and update button for each item then append it to the url-list div
-    // table already has a header, just need to add the rows
-    $('.url-list').append(
-      `<table class="table styled-table">
+    // if no links, show message
+    if (data.length === 0) {
+      $('.url-list').append(
+        `<p class="off-white mg-2-2">You have no links yet. 👆 Create some! 👆</p>`,
+      )
+      $('#view-links').hide()
+    } else {
+      $('.url-list').empty()
+      $('.url-list').removeClass('hidden')
+      // create a table to display the links, urls, slugs, clicks, and unique visitors and a delete and update button for each item then append it to the url-list div
+      // table already has a header, just need to add the rows
+      $('.url-list').append(
+        `<table class="table styled-table">
       <thead>
         <tr>
           <th>Short Url</th>
@@ -312,7 +315,8 @@ const viewLinks = async () => {
         `,
         )}
       </table>`,
-    )
+      )
+    }
   }
 }
 
@@ -340,29 +344,30 @@ const updateLink = async (slug) => {
 }
 
 // not really working...
-const isLoggedIn = async () => {
+const loggedInDisplay = async () => {
   // get cookie
   const cookie = document.cookie || ''
   console.log('cookie', cookie)
 
-  if (cookie) {
-    // find the userId that corresponds to the token inside the server
-    const response = await fetch('/user', {
+  const userId = localStorage.getItem('userId')
+
+  if (cookie || userId) {
+    // hide the login button
+    $('#startBtn').addClass('hidden')
+
+    // fetch the user's links
+    const user = await fetch(`/user/${userId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${cookie}`,
       },
     })
-    if (response.ok) {
-      const data = await response.json()
+
+    if (user.ok) {
+      const data = await user.json()
       console.log('data', data)
       // if user is logged in, show the user their links
       if (data.user) {
-        console.log('user is logged in')
-        // hide the login and signup buttons
-        $('#login').addClass('hidden')
-
         let greetingName = data.user.email.split('@')[0]
         greetingName =
           greetingName.charAt(0).toUpperCase() + greetingName.slice(1)
@@ -376,22 +381,35 @@ const isLoggedIn = async () => {
         // in the url-list div, create view and create buttons
         $('.button-list').append(
           `<button id="crate-links" onclick="createLinks()" class="create">Create Links</button>
-      <button id="view-links" onclick="viewLinks()" class="create">View My Links</button>
-      `,
+          <button id="view-links" onclick="viewLinks()" class="create">View My Links</button>
+         `,
         )
-        // append logout button to nav
-        $('nav').append(`<button id="logout" class="linkBtn">Logout</button>`)
+      } else if (data.email) {
+        let greetingName = data.email.split('@')[0]
+        greetingName =
+          greetingName.charAt(0).toUpperCase() + greetingName.slice(1)
 
-        if (data.user.isAdmin) {
+        $('h2').remove()
+        $('h1').text(`Welcome, ${greetingName}!`)
+        $('p').text(
+          'Now you can create your own short links and view data about them',
+        )
+
+        // in the url-list div, create view and create buttons
+        $('.button-list').append(
+          `<button id="crate-links" onclick="createLinks()" class="create">Create Links</button>
+          <button id="view-links" onclick="viewLinks()" class="create">View My Links</button>
+         `,
+        )
+
+        if (isAdmin()) {
           $('.adminLink').removeClass('hidden')
         }
       }
-    } else {
-      console.log('user is not logged in')
     }
   } else {
     console.log('user is not logged in')
   }
 }
 
-isLoggedIn()
+loggedInDisplay()
