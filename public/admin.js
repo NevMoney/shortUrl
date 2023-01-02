@@ -50,13 +50,13 @@ $('#usersBtn').click(async (e) => {
         (user) => `
       <tbody>
       <tr>
-        <td class="off-white">${user.email}</td>
-        <td class="off-white">${userUrls}</td>
-        <td class="off-white">${user._id}</td>
-        <td class="off-white">${user.isAdmin}</td>
-        <td>
-          <button class="userActionBtn center" onClick="deleteUser('${user._id}')">Delete</button>
-          <button class="userActionBtn center" onClick="updateUser('${user._id}')">Update</button>
+        <td class="off-white" id="email${user._id}">${user.email}</td>
+        <td class="off-white" id="links${user._id}">${userUrls}</td>
+        <td class="off-white" >${user._id}</td>
+        <td class="off-white" id="isAdmin${user._id}">${user.isAdmin}</td>
+        <td class="actionButtons${user._id}">
+          <button class="userActionBtn center" id="deleteBtn${user._id}" onClick="deleteUser('${user._id}')">Delete</button>
+          <button class="userActionBtn center" id="updateBtn${user._id}" onClick="updateUser('${user._id}')">Update</button>
         </td>
       </tr>
       </tbody>
@@ -112,7 +112,6 @@ const deleteUser = async (id) => {
   // verify that user is admin
   const admin = await isAdmin()
   if (admin) {
-    // node uses app.delete('/admin/:requesterId/user/:id', async (req, res, next) => {
     let adminId = localStorage.getItem('userId')
     const response = await fetch(`admin/${adminId}/user/${id}`, {
       method: 'DELETE',
@@ -131,12 +130,39 @@ const deleteUser = async (id) => {
   }
 }
 
+// HAS A BUG - NOT UPDATING USER, EVEN THOUGH IT SAYS IT IS :(
 const updateUser = async (id) => {
   console.log('updating user')
-  const response = await fetch(`/users/${id}`, {
-    method: 'PUT',
-  })
-  const data = await response.json()
-  console.log('data', data)
-  location.reload()
+  const admin = await isAdmin()
+  let fieldName = prompt('Enter field name to update')
+  let updateValue = prompt('Enter new value')
+  // if user clicks cancel, return
+  if (fieldName == null) {
+    return
+  }
+  if (updateValue == null) {
+    return
+  }
+  if (admin) {
+    try {
+      let adminId = localStorage.getItem('userId')
+      const response = await fetch(`admin/${adminId}/user/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fieldName,
+          updateValue,
+        }),
+      })
+      console.log('response', response)
+      const data = await response.json()
+      console.log('data', data)
+    } catch (error) {
+      console.log('error', error)
+    }
+  } else {
+    alert('You are not authorized to perform this action')
+  }
 }

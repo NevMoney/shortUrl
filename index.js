@@ -91,31 +91,36 @@ app.delete('/admin/:requesterId/user/:id', async (req, res, next) => {
 })
 
 // allow for admin to update a user
-app.put('/user/:id', async (req, res, next) => {
-  const { id } = req.params
-  // need to check if person updating is an admin
-  const { isAdmin } = req.body
+app.patch('/admin/:requesterId/user/:id', async (req, res, next) => {
+  const { id, requesterId } = req.params
+  const field = req.body.field
+  const newValue = req.body.newValue
+  const { isAdmin } = await users.findOne({ _id: requesterId })
   if (!isAdmin) {
     res.status(403)
     throw new Error('Not authorized 🎟️')
   } else {
     try {
       const user = await users.findOne({ _id: id })
-      if (user) {
+      if (!user) {
+        res.status(404)
+        throw new Error('User not found 🤷‍♂️')
+      } else {
+        // user[field] = newValue
         await users.update(
           {
             _id: id,
           },
           {
             $set: {
-              isAdmin: req.body.isAdmin,
+              [field]: newValue,
             },
           },
         )
-        res.json({ message: 'User updated 🎉' })
-      } else {
-        res.status(404)
-        throw new Error('User not found 🤷‍♂️')
+        res.json({
+          message: 'User updated 🎉',
+          user,
+        })
       }
     } catch (error) {
       next(error)
