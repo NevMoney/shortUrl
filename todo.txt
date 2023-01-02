@@ -6,13 +6,38 @@ TODO:
 [x] user create url
 [x] user view all urls
 - fix display
-[] user edit url
 [x] user delete url
 [x] admin view all urls
 - fix display
 [x] admin view all users
 [x] admin login
 [x] admin logout
-[] verify admin in DB before allowing functions
+[x] admin delete user
+[x] verify admin in DB before allowing functions
+[x] consistently know if admin is logged in
+[] admin edit user
+[] consistently know if user is logged in (need to triple check)
+[] admin delete url
+
+Payable items:
+[] user edit url
 [] user view uniqueVisitors location by country
-[] consistently know if user is logged in
+[] user create QR code for their new link
+[] user create their own base url
+[] user create social media link thingie
+[] add payment option
+[] tweak number of urls/calls that can be done:
+- for free without logging in
+- for free with logging in
+- paid option(s) and how to know which one is what
+
+Monetization:
+[] allow for adds to run on the page
+
+Deployment:
+[] deploy into the wild
+[] connect to url
+
+BUGS to fix:
+[] url display - taking over entire page and no ability to scroll (CSS issue)
+[] user urls - not showing up correctly in table (JS issue)
