@@ -1,4 +1,4 @@
-TODO:
+Features:
 [x] create url
 [x] login
 [x] register
@@ -37,4 +37,5 @@ Deployment:
 
 BUGS to fix:
 [x] url display - taking over entire page and no ability to scroll (CSS issue)
-[] user urls - not showing up correctly in table (JS issue)
+[x] user urls - not showing up correctly in table (JS issue)
+[] adminLink showing even if NOT admin user

@@ -259,11 +259,9 @@ const shrinkTheLink = async () => {
 }
 
 const viewLinks = async () => {
-  console.log('view clicked')
   // clear the url-list div
   $('.url-list').empty()
   userId = localStorage.getItem('userId')
-  // send a get request to the server : /user/:id/urls
   const response = await fetch(`/user/${userId}/urls`, {
     method: 'GET',
     headers: {
@@ -272,9 +270,8 @@ const viewLinks = async () => {
   })
   if (response.ok) {
     const data = await response.json()
-    console.log('data', data)
 
-    // if no links, show message
+    // if no links
     if (data.length === 0) {
       $('.url-list').append(
         `<p class="off-white mg-2-2">You have no links yet. 👆 Create some! 👆</p>`,
@@ -283,33 +280,39 @@ const viewLinks = async () => {
     } else if (data.createdAt === undefined) {
       $('.url-list').empty()
       $('.url-list').removeClass('hidden')
-      // create a table to display the links, urls, slugs, clicks, and unique visitors and a delete and update button for each item then append it to the url-list div
-      // table already has a header, just need to add the rows
       $('.url-list').append(
         `<table class="table styled-table">
-      <thead>
-        <tr>
-          <th>Short Url</th>
-          <th>Original Url</th>
-          <th>Slug</th>
-          <th>Clicks</th>
-          <th>Unique Visitors</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
+          <thead>
+            <tr>
+              <th>Short Url</th>
+              <th>Original Url</th>
+              <th>Slug</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
 
         ${data.map(
           (link) => `
           <tbody>
           <tr>
-            <td><a href="${link.slug}" target="_blank">${window.location.origin}/${link.slug}</a></td>
-            <td><a href="${link.url}" target="_blank">${link.url}</td>
+            <td><a href="${link.slug}" target="_blank">${
+            window.location.origin
+          }/${link.slug}</a></td>
+            <td><a href="${link.url}" target="_blank">${link.url.slice(
+            0,
+            30,
+          )}</td>
             <td class="off-white">${link.slug}</td>
-            <td class="off-white">${link.visits}</td>
-            <td class="off-white">${link.uniqueVisitors}</td>
             <td>
-              <button class="userActionBtn center"  onClick="deleteLink('${link.slug}')">Delete</button>
-              <button class="userActionBtn center"  onClick="updateLink('${link.slug}')">Update</button>
+              <button class="userActionBtn center"  onClick="deleteLink('${
+                link.slug
+              }')">Delete</button>
+              <button class="userActionBtn center"  onClick="updateLink('${
+                link.slug
+              }')">Update</button>
+              <button class="userActionBtn center"  onClick="viewStats('${
+                link.slug
+              }')">Stats</button>
             </td>
           </tr>
           </tbody>
@@ -320,21 +323,19 @@ const viewLinks = async () => {
     } else {
       $('.url-list').empty()
       $('.url-list').removeClass('hidden')
-      // create a table to display the links, urls, slugs, clicks, and unique visitors and a delete and update button for each item then append it to the url-list div
-      // table already has a header, just need to add the rows
       $('.url-list').append(
         `<table class="table styled-table">
-      <thead>
-        <tr>
-          <th>Short Url</th>
-          <th>Original Url</th>
-          <th>Slug</th>
-          <th>Clicks</th>
-          <th>Unique Visitors</th>
-          <th>Created</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
+          <thead>
+            <tr>
+              <th>Short Url</th>
+              <th>Original Url</th>
+              <th>Slug</th>
+              <th>Clicks</th>
+              <th>Unique Visitors</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
 
         ${data.map(
           (link) => `
@@ -343,7 +344,10 @@ const viewLinks = async () => {
             <td><a href="${link.slug}" target="_blank">${
             window.location.origin
           }/${link.slug}</a></td>
-            <td><a href="${link.url}" target="_blank">${link.url}</td>
+            <td><a href="${link.url}" target="_blank">${link.url.slice(
+            0,
+            30,
+          )}</td>
             <td class="off-white">${link.slug}</td>
             <td class="off-white">${link.visits}</td>
             <td class="off-white">${link.uniqueVisitors}</td>
@@ -389,7 +393,205 @@ const updateLink = async (slug) => {
   console.log('update clicked')
 }
 
-// not really working...
+const getUrlVisits = async (slug) => {
+  const response = await fetch(`/url/${slug}/visits`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+  if (response.ok) {
+    const data = await response.json()
+    console.log('data', data)
+    return data
+  } else {
+    console.log(`Error: ${response.status} ${response.statusText}`)
+  }
+}
+
+const getUrlInfo = async (slug) => {
+  const response = await fetch(`/url/${slug}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+  if (response.ok) {
+    const data = await response.json()
+    console.log('data', data)
+    return data
+  } else {
+    console.log(`Error: ${response.status} ${response.statusText}`)
+  }
+}
+
+const viewStats = async (slug) => {
+  console.log('view stats clicked')
+  const info = await getUrlInfo(slug)
+  const userId = localStorage.getItem('userId')
+
+  let originalLink = info.url
+  if (originalLink.length > 30) {
+    originalLink = originalLink.slice(0, 30) + '...'
+  }
+
+  const paidUser = await payingCustomer(userId)
+  console.log('paidUser', paidUser)
+
+  if (paidUser) {
+    if (info.createdAt == undefined || info.createdAt == null) {
+      $('.url-list').empty()
+      $('.url-list').removeClass('hidden')
+      $('.url-list').append(
+        `<table class="table styled-table">
+      <thead>
+        <tr>
+          <th>Short Url</th>
+          <th>Original Url</th>
+          <th>Slug</th>
+          <th>Clicks</th>
+          <th>Unique Visitors</th>
+          <th>Visitor Locations</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="${slug}" target="_blank">${window.location.origin}/${slug}</a></td>
+          <td><a href="${info.url}" target="_blank">${originalLink}</td>
+          <td class="off-white">${slug}</td>
+          <td class="off-white">${info.visits}</td>
+          <td class="off-white">${info.uniqueVisitors}</td>
+          <td class="off-white">${info.visitors}</td>
+          <td>
+            <button class="userActionBtn center"  onClick="deleteLink('${slug}')">Delete</button>
+            <button class="userActionBtn center"  onClick="updateLink('${slug}')">Update</button>
+          </tr>
+        </tbody>
+      </table>`,
+      )
+    } else {
+      $('.url-list').empty()
+      $('.url-list').removeClass('hidden')
+      $('.url-list').append(
+        `<table class="table styled-table">
+      <thead>
+        <tr>
+          <th>Short Url</th>
+          <th>Original Url</th>
+          <th>Slug</th>
+          <th>Clicks</th>
+          <th>Unique Visitors</th>
+          <th>Visitor Locations</th>
+          <th>Created On</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="${slug}" target="_blank">${
+          window.location.origin
+        }/${slug}</a></td>
+          <td><a href="${info.url}" target="_blank">${originalLink}</td>
+          <td class="off-white">${slug}</td>
+          <td class="off-white">${info.visits}</td>
+          <td class="off-white">${info.uniqueVisitors}</td>
+            <td class="off-white">${info.visitors}</td>
+          <td class="off-white">${info.createdAt.slice(0, 10)}</td>
+          <td>
+            <button class="userActionBtn center"  onClick="deleteLink('${slug}')">Delete</button>
+            <button class="userActionBtn center"  onClick="updateLink('${slug}')">Update</button>
+          </tr>
+        </tbody>
+      </table>`,
+      )
+    }
+  } else {
+    if (info.createdAt == undefined || info.createdAt == null) {
+      $('.url-list').empty()
+      $('.url-list').removeClass('hidden')
+      $('.url-list').append(
+        `<table class="table styled-table">
+        <thead>
+          <tr>
+            <th>Short Url</th>
+            <th>Original Url</th>
+            <th>Slug</th>
+            <th>Clicks</th>
+            <th>Unique Visitors</th>
+            <th>Visitor Locations</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="${slug}" target="_blank">${window.location.origin}/${slug}</a></td>
+            <td><a href="${info.url}" target="_blank">${originalLink}</td>
+            <td class="off-white">${slug}</td>
+            <td class="off-white">${info.visits}</td>
+            <td class="off-white">${info.uniqueVisitors}</td>
+            <td>
+              <button class="userActionBtn center"  onClick="subscribe('${userId}')">Subscribe</button>
+            </td>
+            <td>
+              <button class="userActionBtn center"  onClick="deleteLink('${slug}')">Delete</button>
+              <button class="userActionBtn center"  onClick="updateLink('${slug}')">Update</button>
+            </tr>
+          </tbody>
+        </table>`,
+      )
+    } else {
+      $('.url-list').empty()
+      $('.url-list').removeClass('hidden')
+      $('.url-list').append(
+        `<table class="table styled-table">
+        <thead>
+          <tr>
+            <th>Short Url</th>
+            <th>Original Url</th>
+            <th>Slug</th>
+            <th>Clicks</th>
+            <th>Unique Visitors</th>
+            <th>Visitor Locations</th>
+            <th>Created On</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="${slug}" target="_blank">${
+          window.location.origin
+        }/${slug}</a></td>
+            <td><a href="${info.url}" target="_blank">${originalLink}</td>
+            <td class="off-white">${slug}</td>
+            <td class="off-white">${info.visits}</td>
+            <td class="off-white">${info.uniqueVisitors}</td>
+            <td>
+              <button class="userActionBtn center"  onClick="subscribe('${userId}')">Subscribe</button>
+            </td>
+            <td class="off-white">${info.createdAt.slice(0, 10)}</td>
+            <td>
+              <button class="userActionBtn center"  onClick="deleteLink('${slug}')">Delete</button>
+              <button class="userActionBtn center"  onClick="updateLink('${slug}')">Update</button>
+            </tr>
+          </tbody>
+        </table>`,
+      )
+    }
+  }
+}
+
+const payingCustomer = async (userId) => {
+  // get information from stripe about the user
+
+  // for now:
+  return false
+}
+
+const subscribe = async (userId) => {
+  // send them to stripe to subscribe
+}
+
 const loggedInDisplay = async () => {
   // get cookie
   const cookie = document.cookie || ''
@@ -409,9 +611,14 @@ const loggedInDisplay = async () => {
       },
     })
 
+    if (!isAdmin) {
+      $('#admin').addClass('hidden')
+    }
+
     if (user.ok) {
       const data = await user.json()
       console.log('data', data)
+
       // if user is logged in, show the user their links
       if (data.user) {
         let greetingName = data.user.email.split('@')[0]
@@ -447,10 +654,6 @@ const loggedInDisplay = async () => {
           <button id="view-links" onclick="viewLinks()" class="create">View My Links</button>
          `,
         )
-
-        if (isAdmin()) {
-          $('.adminLink').removeClass('hidden')
-        }
       }
     }
   } else {

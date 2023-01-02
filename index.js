@@ -427,8 +427,9 @@ app.get('/:id', async (req, res) => {
         )
       }
       res.redirect(url.url)
+    } else {
+      return res.status(404).sendFile(notFoundPath)
     }
-    return res.status(404).sendFile(notFoundPath)
     // another option:
     // res.redirect('/404') OR res.redirect(`/?error=${slug} not found`)
   } catch (error) {
@@ -444,8 +445,9 @@ app.get('/url/:id', async (req, res, next) => {
     if (url) {
       console.log('url', url)
       res.json(url)
+    } else {
+      return res.status(404).sendFile(notFoundPath)
     }
-    return res.status(404).sendFile(notFoundPath)
   } catch (error) {
     next(error)
   }
@@ -460,8 +462,9 @@ app.get('/url/:id/visits', async (req, res, next) => {
       console.log('url', url)
       console.log('url.visits', url.visits)
       res.json(url.visits)
+    } else {
+      return res.status(404).sendFile(notFoundPath)
     }
-    return res.status(404).sendFile(notFoundPath)
   } catch (error) {
     next(error)
   }
@@ -474,8 +477,9 @@ app.get('/url/:id/visitors', async (req, res, next) => {
     const url = await urls.findOne({ slug })
     if (url) {
       res.json(url.visitors)
+    } else {
+      return res.status(404).sendFile(notFoundPath)
     }
-    return res.status(404).sendFile(notFoundPath)
   } catch (error) {
     next(error)
   }
