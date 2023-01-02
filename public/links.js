@@ -354,7 +354,6 @@ const isLoggedIn = async () => {
         Authorization: `Bearer ${cookie}`,
       },
     })
-    console.log('response', response)
     if (response.ok) {
       const data = await response.json()
       console.log('data', data)
@@ -387,7 +386,11 @@ const isLoggedIn = async () => {
           $('.adminLink').removeClass('hidden')
         }
       }
+    } else {
+      console.log('user is not logged in')
     }
+  } else {
+    console.log('user is not logged in')
   }
 }
 

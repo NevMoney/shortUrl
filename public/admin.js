@@ -2,22 +2,20 @@ console.log('admin.js running')
 
 // first we need to verify that user has admin privileges, which we can check from isAdmin property in the user object
 const isAdmin = async () => {
-  const response = await fetch('/users')
+  const userId = localStorage.getItem('userId')
+  const response = await fetch(`/user/${userId}`)
   const data = await response.json()
   console.log('data', data)
-  const user = data.find((user) => user._id === localStorage.getItem('userId'))
-  console.log('user', user)
-  if (user.isAdmin === true) {
-    console.log('user is admin')
+  if (data.isAdmin) {
     return true
   } else {
-    console.log('user is not admin')
     return false
   }
 }
 
 isAdmin()
 
+// get all users
 $('#usersBtn').click(async (e) => {
   e.preventDefault()
   console.log('fetching users')
@@ -67,6 +65,7 @@ $('#usersBtn').click(async (e) => {
   )
 })
 
+// get all links
 $('#linksBtn').click(async (e) => {
   e.preventDefault()
   const links = await fetch('/urls')
