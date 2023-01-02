@@ -4,7 +4,6 @@ const isAdmin = async () => {
   if (userId) {
     const response = await fetch(`/user/${userId}`)
     const data = await response.json()
-    console.log('isAdmin data', data)
     if (data.isAdmin) {
       $('.adminLink').removeClass('hidden')
       return true

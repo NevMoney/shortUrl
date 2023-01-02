@@ -5,10 +5,8 @@ TODO:
 [x] logout
 [x] user create url
 [x] user view all urls
-- fix display
 [x] user delete url
 [x] admin view all urls
-- fix display
 [x] admin view all users
 [x] admin login
 [x] admin logout
@@ -16,7 +14,7 @@ TODO:
 [x] verify admin in DB before allowing functions
 [x] consistently know if admin is logged in
 [] admin edit user
-[] consistently know if user is logged in (need to triple check)
+[x] consistently know if user is logged in (need to triple check)
 [] admin delete url
 
 Payable items:
@@ -39,5 +37,5 @@ Deployment:
 [] connect to url
 
 BUGS to fix:
-[] url display - taking over entire page and no ability to scroll (CSS issue)
+[x] url display - taking over entire page and no ability to scroll (CSS issue)
 [] user urls - not showing up correctly in table (JS issue)

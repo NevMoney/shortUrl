@@ -221,6 +221,7 @@ const createLinks = async () => {
   )
 }
 
+// actual function pushing the link to the server/DB
 const shrinkTheLink = async () => {
   console.log('shrink clicked')
   // get the url input
@@ -279,7 +280,7 @@ const viewLinks = async () => {
         `<p class="off-white mg-2-2">You have no links yet. 👆 Create some! 👆</p>`,
       )
       $('#view-links').hide()
-    } else {
+    } else if (data.createdAt === undefined) {
       $('.url-list').empty()
       $('.url-list').removeClass('hidden')
       // create a table to display the links, urls, slugs, clicks, and unique visitors and a delete and update button for each item then append it to the url-list div
@@ -309,6 +310,51 @@ const viewLinks = async () => {
             <td>
               <button class="userActionBtn center"  onClick="deleteLink('${link.slug}')">Delete</button>
               <button class="userActionBtn center"  onClick="updateLink('${link.slug}')">Update</button>
+            </td>
+          </tr>
+          </tbody>
+        `,
+        )}
+      </table>`,
+      )
+    } else {
+      $('.url-list').empty()
+      $('.url-list').removeClass('hidden')
+      // create a table to display the links, urls, slugs, clicks, and unique visitors and a delete and update button for each item then append it to the url-list div
+      // table already has a header, just need to add the rows
+      $('.url-list').append(
+        `<table class="table styled-table">
+      <thead>
+        <tr>
+          <th>Short Url</th>
+          <th>Original Url</th>
+          <th>Slug</th>
+          <th>Clicks</th>
+          <th>Unique Visitors</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+        ${data.map(
+          (link) => `
+          <tbody>
+          <tr>
+            <td><a href="${link.slug}" target="_blank">${
+            window.location.origin
+          }/${link.slug}</a></td>
+            <td><a href="${link.url}" target="_blank">${link.url}</td>
+            <td class="off-white">${link.slug}</td>
+            <td class="off-white">${link.visits}</td>
+            <td class="off-white">${link.uniqueVisitors}</td>
+            <td class="off-white">${link.createdAt.slice(0, 10)}</td>
+            <td>
+              <button class="userActionBtn center"  onClick="deleteLink('${
+                link.slug
+              }')">Delete</button>
+              <button class="userActionBtn center"  onClick="updateLink('${
+                link.slug
+              }')">Update</button>
             </td>
           </tr>
           </tbody>
