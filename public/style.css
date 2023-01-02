@@ -259,3 +259,20 @@ h3 {
 .styled-table tbody tr:last-of-type {
   border-bottom: 2px solid #3ff142;
 }
+
+.linkBtn {
+  background-color: white;
+  border: 1px solid #3ff142;
+  border-radius: 5px;
+  color: #3ff142;
+  margin: 6px 10px;
+  cursor: pointer;
+  float: right;
+  padding: 4px 8px;
+}
+
+.linkBtn:hover {
+  color: #494542;
+  background-color: #c4c4c4;
+  box-shadow: 0 0 10px 5px rgba(232, 232, 232, 0.2);
+}
