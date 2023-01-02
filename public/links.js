@@ -206,23 +206,88 @@ $('#create-account').click((e) => {
 // function to create links as a logged in user
 const createLinks = async () => {
   console.log('create clicked')
-  // clear the url-list div
-  $('.url-list').empty()
-  $('.button-list').empty()
-  // append a form to the url-list div
-  $('.url-list').append(
-    `<form id="create-link-form" class="create-link-form">
+
+  $('.custom-url').removeClass('hidden')
+
+  let checkBox = showCustom()
+}
+
+const showCustom = () => {
+  if ($('#checkBox').is(':checked')) {
+    console.log('checked')
+    $('#custom-url').show()
+    // clear the url-list div
+    $('.url-list').empty()
+    $('.button-list').empty()
+    // append an input form and optional custom base url input to the url-list div
+    $('.url-list').append(
+      `<form id="create-link-form" class="create-link-form">
+      <input class="input" type="url" name="url" id="user-baseUrl" placeholder="Custom base" required>
+      <br/>
+      <input class="input" type="url" name="url" id="user-url" placeholder="your url" required>
+      <br/>
+      <input class="input" type="text" name="slug" id="user-slug" placeholder="slug" required>
+      <br/>
+      <button class="create" type="button" onClick="customShrink()">Create</button>
+    </form>`,
+    )
+  } else {
+    console.log('not checked')
+    $('#custom-url').hide()
+    // clear the url-list div
+    $('.url-list').empty()
+    $('.button-list').empty()
+    // append an input form and optional custom base url input to the url-list div
+    $('.url-list').append(
+      `<form id="create-link-form" class="create-link-form">
       <input class="input" type="url" name="url" id="user-url" placeholder="your url" required>
       <br/>
       <input class="input" type="text" name="slug" id="user-slug" placeholder="slug" required>
       <br/>
       <button class="create" type="button" onClick="shrinkTheLink()">Create</button>
     </form>`,
-  )
+    )
+  }
 }
 
 // actual function pushing the link to the server/DB
 const shrinkTheLink = async () => {
+  console.log('shrink clicked')
+  // get the url input
+  const url = $('#user-url').val()
+  // get the slug input
+  const slug = $('#user-slug').val()
+  console.log('url', url, 'slug', slug, 'userId', userId)
+  // send a post request to the server
+  const response = await fetch(`/user/${userId}/url`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      url: url,
+      slug: slug || undefined,
+    }),
+  })
+  if (response.ok) {
+    console.log('response worked')
+    const data = await response.json()
+    console.log('data', data)
+    // show user all their links
+    $('.url-list').empty()
+    $('p').remove()
+    $('.url-list').append(
+      `<p class="off-white mg-2-2">Your New Link:</p>
+      <p><a href="${data.slug}" class="newUrl" target="_blank">${window.location.origin}/${data.slug}</a></p>
+      
+      <p class="off-white mg-2-2">What else do you want to do now?</p>
+      <button id="crate-links" onclick="createLinks()" class="create">Create Links</button>
+      <button id="view-links" onclick="viewLinks()" class="create">View My Links</button>`,
+    )
+  }
+}
+
+const customShrink = async () => {
   console.log('shrink clicked')
   // get the url input
   const url = $('#user-url').val()

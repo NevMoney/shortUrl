@@ -56,6 +56,18 @@
       <!-- create a button that looks like a link -->
       <button id="create-account">Create Account</button>
     </form>
+
+    <!-- custom URL input box -->
+    <label for="checkbox" class="custom-url off-white hidden">
+      Custom URL?
+    </label>
+    <input
+      type="checkbox"
+      id="checkBox"
+      class="custom-url off-white hidden"
+      onclick="showCustom()"
+    />
+
     <div id="register"></div>
     <div class="error hidden" id="error"></div>
     <div class="button-list"></div>
