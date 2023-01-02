@@ -13,7 +13,6 @@ TODO:
 [x] admin delete user
 [x] verify admin in DB before allowing functions
 [x] consistently know if admin is logged in
-[] admin edit user
 [x] consistently know if user is logged in (need to triple check)
 [x] admin delete url
 

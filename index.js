@@ -94,48 +94,6 @@ app.delete('/admin/:requesterId/user/:id', async (req, res, next) => {
   }
 })
 
-// allow for admin to update a user
-app.patch('/admin/:requesterId/user/:id', async (req, res, next) => {
-  const { id, requesterId } = req.params
-  const field = req.body.field
-  const newValue = req.body.newValue
-  const { isAdmin } = await users.findOne({ _id: requesterId })
-  if (!isAdmin) {
-    res.status(403)
-    throw new Error('Not authorized 🎟️')
-  } else {
-    try {
-      const user = await users.findOne({ _id: id })
-      if (!user) {
-        res.status(404)
-        throw new Error('User not found 🤷‍♂️')
-      } else {
-        // user[field] = newValue
-        await users.update(
-          {
-            _id: id,
-          },
-          {
-            $set: {
-              [field]: newValue,
-            },
-            // update the updatedAt field
-            $currentDate: {
-              updatedAt: true,
-            },
-          },
-        )
-        res.json({
-          message: 'User updated 🎉',
-          user,
-        })
-      }
-    } catch (error) {
-      next(error)
-    }
-  }
-})
-
 app.get('/user/:id', async (req, res, next) => {
   const { id } = req.params
   try {
