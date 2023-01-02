@@ -22,6 +22,9 @@ urls.createIndex('slug')
 const users = db.get('users')
 users.createIndex({ email: 1 }, { unique: true })
 
+const customUrls = db.get('urls')
+customUrls.createIndex('slug')
+
 const app = express()
 app.enable('trust proxy')
 
@@ -50,11 +53,27 @@ const schema = yup.object().shape({
   updatedAt: yup.date().default(() => new Date()),
 })
 
+const customUrlSchema = yup.object().shape({
+  slug: yup
+    .string()
+    .trim()
+    .matches(/^[\w\-]+$/i)
+    .required(),
+  url: yup.string().trim().url().required(),
+  baseUrl: yup.string().trim().url().required(),
+  visits: yup.number().integer().default(0),
+  visitors: yup.array().default([]),
+  uniqueVisitors: yup.number().integer().default(0),
+  createdAt: yup.date().default(() => new Date()),
+  updatedAt: yup.date().default(() => new Date()),
+})
+
 // need a schema for users
 const userSchema = yup.object().shape({
   email: yup.string().trim().email().required(),
   password: yup.string().trim().required(),
   urls: yup.array().default([]),
+  customUrls: yup.array().default([]),
   isAdmin: yup.boolean().default(false),
   createdAt: yup.date().default(() => new Date()),
   updatedAt: yup.date().default(() => new Date()),
@@ -94,6 +113,7 @@ app.delete('/admin/:requesterId/user/:id', async (req, res, next) => {
   }
 })
 
+// get user by id
 app.get('/user/:id', async (req, res, next) => {
   const { id } = req.params
   try {
@@ -186,6 +206,18 @@ app.get('/user/:id/urls', async (req, res, next) => {
   try {
     const user = await users.findOne({ _id: id })
     res.json(user.urls)
+  } catch (error) {
+    next(error)
+  }
+})
+
+// if user is logged in, get their custom urls
+app.get('/user/:id/customUrls', async (req, res, next) => {
+  // id is the user id
+  const { id } = req.params
+  try {
+    const user = await users.findOne({ _id: id })
+    res.json(user.customUrls)
   } catch (error) {
     next(error)
   }
@@ -324,6 +356,54 @@ app.post('/user/:id/url', async (req, res, next) => {
   }
 })
 
+// create customUrl if user is logged in
+app.post('/user/:id/customUrl', async (req, res, next) => {
+  const { id } = req.params
+  let { baseUrl, slug, url } = req.body
+
+  try {
+    await customUrlSchema.validate({
+      slug,
+      url,
+      baseUrl,
+    })
+    if (!slug) {
+      slug = nanoid.nanoid(5)
+    } else {
+      // check if slug is in use
+      const existing = await customUrls.findOne({ slug })
+      if (existing) {
+        throw new Error('Slug in use. 🍔')
+      }
+    }
+    slug = slug.toLowerCase()
+    const newCustomUrl = {
+      slug,
+      url,
+      baseUrl,
+      visits: 0,
+      visitors: [],
+      uniqueVisitors: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+    const created = await customUrls.insert(newCustomUrl)
+    console.log('created', created)
+    res.json(created)
+    // add url to user
+    const user = await users.findOne({ _id: id })
+    if (user) {
+      const updatedUser = await users.update(
+        { _id: id },
+        { $push: { customUrls: created } },
+      )
+      console.log('updatedUser', updatedUser)
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
 // update url - only if user is logged in
 app.put('/user/:id/url/:slug', async (req, res, next) => {
   const { id, slug } = req.params
@@ -430,8 +510,83 @@ app.get('/:id', async (req, res) => {
     } else {
       return res.status(404).sendFile(notFoundPath)
     }
-    // another option:
-    // res.redirect('/404') OR res.redirect(`/?error=${slug} not found`)
+  } catch (error) {
+    return res.status(404).sendFile(notFoundPath)
+  }
+})
+
+// url redirect for custom urls
+app.get('/custom/:id', async (req, res) => {
+  const { id: slug } = req.params
+  // get IP address of visitor
+  // const visitorIP = ip.address()
+  // console.log('visitorIP', visitorIP)
+  // get url from database
+  const url = await customUrls.findOne({ slug })
+  console.log('url', url)
+  if (!url) {
+    return res.status(404).sendFile(notFoundPath)
+  }
+  // check if IP address exists in visitors array
+  // const visitor = url.visitors.find((visitor) => visitor === visitorIP)
+  // console.log('visitor', visitor)
+  // const visitors = url.visitors
+  // console.log('visitors', visitors)
+  // if visitor is not inside the array, push the IP address into the array
+  // if (!visitor) {
+  //   visitors.push(visitorIP)
+  //   await customUrls.update(
+  //     { slug },
+  //     {
+  //       $set: { visitors },
+  //     },
+  //   )
+  //   await customUrls.update(
+  //     { slug },
+  //     {
+  //       $set: { uniqueVisitors: url.uniqueVisitors + 1 },
+  //     },
+  //   )
+  //   // update visits in the user url array
+  //   await users.update(
+  //     { 'urls.slug': slug },
+  //     {
+  //       $set: { 'urls.$.visits': url.visits + 1 },
+  //     },
+  //   )
+  //   await users.update(
+  //     { 'urls.slug': slug },
+  //     {
+  //       $set: { 'urls.$.uniqueVisitors': url.uniqueVisitors + 1 },
+  //     },
+  //   )
+  // }
+  // console.log('visitors now', visitors)
+
+  try {
+    if (url) {
+      // if (visitors.includes(visitorIP)) {
+      //   console.log('IP address already exists')
+      //   await customUrls.update(
+      //     {
+      //       slug,
+      //     },
+      //     {
+      //       $set: { visits: url.visits + 1 },
+      //     },
+      //   )
+      //   // update visits in the user url array
+      //   await users.update(
+      //     { 'urls.slug': slug },
+      //     {
+      //       $set: { 'urls.$.visits': url.visits + 1 },
+      //     },
+      //   )
+      // }
+      res.redirect(url.url)
+    } else {
+      return res.status(404).sendFile(notFoundPath)
+    }
   } catch (error) {
     return res.status(404).sendFile(notFoundPath)
   }

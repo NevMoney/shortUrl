@@ -293,9 +293,20 @@ const customShrink = async () => {
   const url = $('#user-url').val()
   // get the slug input
   const slug = $('#user-slug').val()
+  // get the custom base url input
+  let customUrl = $('#user-baseUrl').val()
+
+  // if the user doesn't enter http:// or https://, add it
+  if (!customUrl.includes('http://') && !customUrl.includes('https://')) {
+    customUrl = 'http://' + customUrl
+  }
+
+  // get userId
+  const userId = localStorage.getItem('userId')
+  console.log('customUrl', customUrl)
   console.log('url', url, 'slug', slug, 'userId', userId)
-  // send a post request to the server
-  const response = await fetch(`/user/${userId}/url`, {
+  // send a post request to the server; node uses app.post('/user/:id/customUrl', ...)
+  const response = await fetch(`/user/${userId}/customUrl`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -303,6 +314,7 @@ const customShrink = async () => {
     body: JSON.stringify({
       url: url,
       slug: slug || undefined,
+      baseUrl: customUrl,
     }),
   })
   if (response.ok) {
@@ -314,8 +326,8 @@ const customShrink = async () => {
     $('p').remove()
     $('.url-list').append(
       `<p class="off-white mg-2-2">Your New Link:</p>
-      <p><a href="${data.slug}" class="newUrl" target="_blank">${window.location.origin}/${data.slug}</a></p>
-      
+      <p><a href="${data.slug}" class="newUrl" target="_blank">${data.baseUrl}/${data.slug}</a></p>
+
       <p class="off-white mg-2-2">What else do you want to do now?</p>
       <button id="crate-links" onclick="createLinks()" class="create">Create Links</button>
       <button id="view-links" onclick="viewLinks()" class="create">View My Links</button>`,
@@ -644,6 +656,47 @@ const viewStats = async (slug) => {
       )
     }
   }
+}
+
+const viewCustomLinks = async () => {
+  // get cookie
+  const cookie = document.cookie || ''
+  console.log('cookie', cookie)
+  let userId = localStorage.getItem('userId')
+  if (cookie || userId) {
+    // fetch the user's links user/:id/customUrls',
+    const userLinks = await fetch(`/user/${userId}/customUrls`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    const links = await userLinks.json()
+    console.log('links', links)
+    if (links.length == 0) {
+      console.log('no links')
+      return
+    } else {
+      links.forEach((link) => {
+        const slug = link.slug
+        const info = link.info
+        const originalLink = link.originalLink
+        const createdAt = link.createdAt
+        const userId = link.userId
+        return displayCustomLinks(slug, info, originalLink, createdAt, userId)
+      })
+    }
+  }
+}
+
+const displayCustomLinks = async (
+  slug,
+  info,
+  originalLink,
+  createdAt,
+  userId,
+) => {
+  console.log('displaying custom links')
 }
 
 const payingCustomer = async (userId) => {
