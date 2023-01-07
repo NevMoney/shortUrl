@@ -4,19 +4,10 @@ console.log('admin.js running')
 $('#usersBtn').click(async (e) => {
   e.preventDefault()
   console.log('fetching users')
-  let userUrls
-  const users = await fetch('/users')
+  const userId = localStorage.getItem('userId')
+  const users = await fetch(`${userId}/users`)
   const data = await users.json()
   console.log('data', data)
-  // data.forEach((user) => {
-  //   if (user.urls === undefined || user.urls === null || user.urls === []) {
-  //     userUrls = 0
-  //   } else {
-  //     userUrls = user.urls.length
-  //   }
-  //   console.log(`userurls ${user.email}`, userUrls)
-  //   return userUrls
-  // })
   $('#user-list').empty()
   $('#user-list').append(
     `<table class="table styled-table">
@@ -107,28 +98,36 @@ const getUserLinks = async (id) => {
           <th>Short Url</th>
           <th>Original Url</th>
           <th>Slug</th>
-          <th>Clicks</th>
-          <th>Unique Visitors</th>
           <th>Actions</th>
         </tr>
       </thead>
-      ${data.map(
-        (link) => `
-      <tbody>
-      <tr>
-        <td><a href="${link.slug}" target="_blank">${window.location.origin}/${link.slug}</a></td>
-        <td><a href="${link.url}" target="_blank">${link.url}</td>
-        <td class="off-white">${link.slug}</td>
-        <td class="off-white">${link.visits}</td>
-        <td class="off-white">${link.uniqueVisitors}</td>
-        <td>
-          <button class="userActionBtn center" onClick="deleteLink('${link.slug}')">Delete</button>
-          <button class="userActionBtn center" onClick="updateLink('${link.slug}')">Update</button>
-        </td>
-      </tr>
-      </tbody>
-    `,
-      )}
+      ${data.map((link) => {
+        let customUrl
+        if (link.baseUrl !== undefined || link.baseUrl !== null) {
+          customUrl = link.baseUrl
+        } else {
+          customUrl = window.location.origin
+        }
+        return `
+          <tbody>
+          <tr>
+            <td><a href="${link.slug}" target="_blank">${customUrl}/${
+          link.slug
+        }</a></td>
+            <td><a href="${link.url}" target="_blank">${link.url.slice(
+          0,
+          30,
+        )}</td>
+            <td class="off-white">${link.slug}</td>
+            <td>
+              <button class="userActionBtn center" onClick="deleteLink('${
+                link.slug
+              }')">Delete</button>
+            </td>
+          </tr>
+          </tbody>
+        `
+      })}
       </table>
     `,
   )

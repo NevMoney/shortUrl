@@ -373,7 +373,6 @@ const viewLinks = async () => {
 }
 
 const deleteLink = async (slug) => {
-  console.log('delete clicked', slug)
   // send a delete request to the server : /user/:id/url/:slug
   const response = await fetch(`/user/${userId}/url/${slug}`, {
     method: 'DELETE',
@@ -382,10 +381,7 @@ const deleteLink = async (slug) => {
     },
   })
   if (response.ok) {
-    console.log('response worked')
     const data = await response.json()
-    console.log('data', data)
-    // show user all their links
     alert(`${slug} successfully deleted! 🕺 🔥`)
     viewLinks()
   } else {
@@ -586,8 +582,6 @@ const subscribe = async (userId) => {
 const loggedInDisplay = async () => {
   // get cookie
   const cookie = document.cookie || ''
-  console.log('cookie', cookie)
-
   const userId = localStorage.getItem('userId')
 
   if (cookie || userId) {
@@ -603,7 +597,7 @@ const loggedInDisplay = async () => {
     })
 
     if (!isAdmin) {
-      $('#admin').addClass('hidden')
+      $('.adminLink').addClass('hidden')
     }
 
     if (user.ok) {
