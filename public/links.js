@@ -222,13 +222,13 @@ const showCustom = () => {
     // append an input form and optional custom base url input to the url-list div
     $('.url-list').append(
       `<form id="create-link-form" class="create-link-form">
-      <input class="input" type="url" name="url" id="user-baseUrl" placeholder="Custom base" required>
+      <input class="input" type="url" name="url" id="user-baseUrl" placeholder="custom url base" required>
       <br/>
       <input class="input" type="url" name="url" id="user-url" placeholder="your url" required>
       <br/>
       <input class="input" type="text" name="slug" id="user-slug" placeholder="slug" required>
       <br/>
-      <button class="create" type="button" onClick="customShrink()">Create</button>
+      <button class="create" type="button" onClick="shrinkTheLink()">Create</button>
     </form>`,
     )
   } else {
@@ -253,11 +253,22 @@ const showCustom = () => {
 // actual function pushing the link to the server/DB
 const shrinkTheLink = async () => {
   console.log('shrink clicked')
-  // get the url input
+
   const url = $('#user-url').val()
-  // get the slug input
   const slug = $('#user-slug').val()
-  console.log('url', url, 'slug', slug, 'userId', userId)
+  let baseUrl = $('#user-baseUrl').val()
+  userId = localStorage.getItem('userId')
+  console.log('url', url, 'slug', slug, 'baseUrl', baseUrl, 'userId', userId)
+
+  // check to see if baseUrl has http:// or https://
+  if (baseUrl !== '') {
+    if (baseUrl.includes('http://') || baseUrl.includes('https://')) {
+      console.log('baseUrl has http:// or https://')
+    } else {
+      baseUrl = 'http://' + baseUrl
+    }
+  }
+
   // send a post request to the server
   const response = await fetch(`/user/${userId}/url`, {
     method: 'POST',
@@ -267,6 +278,7 @@ const shrinkTheLink = async () => {
     body: JSON.stringify({
       url: url,
       slug: slug || undefined,
+      baseUrl: baseUrl || undefined,
     }),
   })
   if (response.ok) {
@@ -276,64 +288,79 @@ const shrinkTheLink = async () => {
     // show user all their links
     $('.url-list').empty()
     $('p').remove()
-    $('.url-list').append(
-      `<p class="off-white mg-2-2">Your New Link:</p>
+    if (data.baseUrl !== undefined) {
+      $('.url-list').append(
+        `<p class="off-white mg-2-2">Your New Link:</p>
+      <p><a href="${data.slug}" class="newUrl" target="_blank">${data.baseUrl}/${data.slug}</a></p>
+      
+      <p class="off-white mg-2-2">What else do you want to do now?</p>
+      <button id="crate-links" onclick="createLinks()" class="create">Create Links</button>
+      <button id="view-links" onclick="viewLinks()" class="create">View My Links</button>`,
+      )
+    } else {
+      $('.url-list').append(
+        `<p class="off-white mg-2-2">Your New Link:</p>
       <p><a href="${data.slug}" class="newUrl" target="_blank">${window.location.origin}/${data.slug}</a></p>
       
       <p class="off-white mg-2-2">What else do you want to do now?</p>
       <button id="crate-links" onclick="createLinks()" class="create">Create Links</button>
       <button id="view-links" onclick="viewLinks()" class="create">View My Links</button>`,
+      )
+    }
+  } else {
+    console.log(
+      `Something went wrong: ${response.status} ${response.statusText}`,
     )
   }
 }
 
-const customShrink = async () => {
-  console.log('shrink clicked')
-  // get the url input
-  const url = $('#user-url').val()
-  // get the slug input
-  const slug = $('#user-slug').val()
-  // get the custom base url input
-  let customUrl = $('#user-baseUrl').val()
+// const customShrink = async () => {
+//   console.log('shrink clicked')
+//   // get the url input
+//   const url = $('#user-url').val()
+//   // get the slug input
+//   const slug = $('#user-slug').val()
+//   // get the custom base url input
+//   let customUrl = $('#user-baseUrl').val()
 
-  // if the user doesn't enter http:// or https://, add it
-  if (!customUrl.includes('http://') && !customUrl.includes('https://')) {
-    customUrl = 'http://' + customUrl
-  }
+//   // if the user doesn't enter http:// or https://, add it
+//   if (!customUrl.includes('http://') && !customUrl.includes('https://')) {
+//     customUrl = 'http://' + customUrl
+//   }
 
-  // get userId
-  const userId = localStorage.getItem('userId')
-  console.log('customUrl', customUrl)
-  console.log('url', url, 'slug', slug, 'userId', userId)
-  // send a post request to the server; node uses app.post('/user/:id/customUrl', ...)
-  const response = await fetch(`/user/${userId}/customUrl`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      url: url,
-      slug: slug || undefined,
-      baseUrl: customUrl,
-    }),
-  })
-  if (response.ok) {
-    console.log('response worked')
-    const data = await response.json()
-    console.log('data', data)
-    // show user all their links
-    $('.url-list').empty()
-    $('p').remove()
-    $('.url-list').append(
-      `<p class="off-white mg-2-2">Your New Link:</p>
-      <p><a href="${data.slug}" class="newUrl" target="_blank">${data.baseUrl}/${data.slug}</a></p>
+//   // get userId
+//   const userId = localStorage.getItem('userId')
+//   console.log('customUrl', customUrl)
+//   console.log('url', url, 'slug', slug, 'userId', userId)
+//   // send a post request to the server; node uses app.post('/user/:id/customUrl', ...)
+//   const response = await fetch(`/user/${userId}/customUrl`, {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     body: JSON.stringify({
+//       url: url,
+//       slug: slug || undefined,
+//       baseUrl: customUrl,
+//     }),
+//   })
+//   if (response.ok) {
+//     console.log('response worked')
+//     const data = await response.json()
+//     console.log('data', data)
+//     // show user all their links
+//     $('.url-list').empty()
+//     $('p').remove()
+//     $('.url-list').append(
+//       `<p class="off-white mg-2-2">Your New Link:</p>
+//       <p><a href="${data.slug}" class="newUrl" target="_blank">${data.baseUrl}/${data.slug}</a></p>
 
-      <p class="off-white mg-2-2">What else do you want to do now?</p>
-      <button id="crate-links" onclick="createLinks()" class="create">Create Links</button>
-      <button id="view-links" onclick="viewLinks()" class="create">View My Links</button>`,
-    )
-  }
-}
+//       <p class="off-white mg-2-2">What else do you want to do now?</p>
+//       <button id="crate-links" onclick="createLinks()" class="create">Create Links</button>
+//       <button id="view-links" onclick="viewLinks()" class="create">View My Links</button>`,
+//     )
+//   }
+// }
 
 const viewLinks = async () => {
   $('.url-list').empty()
