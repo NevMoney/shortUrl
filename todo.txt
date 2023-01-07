@@ -20,7 +20,7 @@ Payable items:
 [] user edit url
 [] user view uniqueVisitors location by country
 [] user create QR code for their new link
-[] user create their own base url
+[x] user create their own base url
 [] user create social media link thingie
 [] add payment option
 [] tweak number of urls/calls that can be done:
@@ -36,6 +36,4 @@ Deployment:
 [] connect to url
 
 BUGS to fix:
-[x] url display - taking over entire page and no ability to scroll (CSS issue)
-[x] user urls - not showing up correctly in table (JS issue)
 [] adminLink showing even if NOT admin user

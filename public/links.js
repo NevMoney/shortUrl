@@ -336,7 +336,6 @@ const customShrink = async () => {
 }
 
 const viewLinks = async () => {
-  // clear the url-list div
   $('.url-list').empty()
   userId = localStorage.getItem('userId')
   const response = await fetch(`/user/${userId}/urls`, {
@@ -347,6 +346,9 @@ const viewLinks = async () => {
   })
   if (response.ok) {
     const data = await response.json()
+    console.log('data', data)
+
+    let customUrl
 
     // if no links
     if (data.length === 0) {
@@ -354,49 +356,6 @@ const viewLinks = async () => {
         `<p class="off-white mg-2-2">You have no links yet. 👆 Create some! 👆</p>`,
       )
       $('#view-links').hide()
-    } else if (data.createdAt === undefined) {
-      $('.url-list').empty()
-      $('.url-list').removeClass('hidden')
-      $('.url-list').append(
-        `<table class="table styled-table">
-          <thead>
-            <tr>
-              <th>Short Url</th>
-              <th>Original Url</th>
-              <th>Slug</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-
-        ${data.map(
-          (link) => `
-          <tbody>
-          <tr>
-            <td><a href="${link.slug}" target="_blank">${
-            window.location.origin
-          }/${link.slug}</a></td>
-            <td><a href="${link.url}" target="_blank">${link.url.slice(
-            0,
-            30,
-          )}</td>
-            <td class="off-white">${link.slug}</td>
-            <td>
-              <button class="userActionBtn center"  onClick="deleteLink('${
-                link.slug
-              }')">Delete</button>
-              <button class="userActionBtn center"  onClick="updateLink('${
-                link.slug
-              }')">Update</button>
-              <button class="userActionBtn center"  onClick="viewStats('${
-                link.slug
-              }')">Stats</button>
-            </td>
-          </tr>
-          </tbody>
-        `,
-        )}
-      </table>`,
-      )
     } else {
       $('.url-list').empty()
       $('.url-list').removeClass('hidden')
@@ -407,40 +366,39 @@ const viewLinks = async () => {
               <th>Short Url</th>
               <th>Original Url</th>
               <th>Slug</th>
-              <th>Clicks</th>
-              <th>Unique Visitors</th>
-              <th>Created</th>
               <th>Actions</th>
             </tr>
           </thead>
 
-        ${data.map(
-          (link) => `
-          <tbody>
+        ${data.map((link) => {
+          console.log('date')
+          if (link.baseUrl !== undefined) {
+            customUrl = link.baseUrl + '/' + link.slug
+          } else {
+            customUrl = window.location.origin + '/' + link.slug
+          }
+          return `
           <tr>
-            <td><a href="${link.slug}" target="_blank">${
-            window.location.origin
-          }/${link.slug}</a></td>
+            <td><a href="${link.slug}" target="_blank">${customUrl}</a></td>
             <td><a href="${link.url}" target="_blank">${link.url.slice(
             0,
             30,
-          )}</td>
+          )}</a></td>
             <td class="off-white">${link.slug}</td>
-            <td class="off-white">${link.visits}</td>
-            <td class="off-white">${link.uniqueVisitors}</td>
-            <td class="off-white">${link.createdAt.slice(0, 10)}</td>
             <td>
-              <button class="userActionBtn center"  onClick="deleteLink('${
-                link.slug
+              <button class="userActionBtn center" onclick="deleteLink('${
+                link._id
               }')">Delete</button>
-              <button class="userActionBtn center"  onClick="updateLink('${
+              <button class="userActionBtn center" onclick="UpdateLink('${
+                link._id
+              }')">Edit</button>
+              <button class="userActionBtn center" onClick="viewStats('${
                 link.slug
-              }')">Update</button>
+              }')">Stats</button>
             </td>
           </tr>
-          </tbody>
-        `,
-        )}
+        `
+        })}
       </table>`,
       )
     }
@@ -470,21 +428,21 @@ const updateLink = async (slug) => {
   console.log('update clicked')
 }
 
-const getUrlVisits = async (slug) => {
-  const response = await fetch(`/url/${slug}/visits`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-  if (response.ok) {
-    const data = await response.json()
-    console.log('data', data)
-    return data
-  } else {
-    console.log(`Error: ${response.status} ${response.statusText}`)
-  }
-}
+// const getUrlVisits = async (slug) => {
+//   const response = await fetch(`/url/${slug}/visits`, {
+//     method: 'GET',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//   })
+//   if (response.ok) {
+//     const data = await response.json()
+//     console.log('data', data)
+//     return data
+//   } else {
+//     console.log(`Error: ${response.status} ${response.statusText}`)
+//   }
+// }
 
 const getUrlInfo = async (slug) => {
   const response = await fetch(`/url/${slug}`, {
@@ -512,6 +470,13 @@ const viewStats = async (slug) => {
     originalLink = originalLink.slice(0, 30) + '...'
   }
 
+  let customUrl
+  if (info.baseUrl !== undefined) {
+    customUrl = info.baseUrl + '/' + info.slug
+  } else {
+    customUrl = window.location.origin + '/' + info.slug
+  }
+
   const paidUser = await payingCustomer(userId)
   console.log('paidUser', paidUser)
 
@@ -534,7 +499,7 @@ const viewStats = async (slug) => {
       </thead>
       <tbody>
         <tr>
-          <td><a href="${slug}" target="_blank">${window.location.origin}/${slug}</a></td>
+          <td><a href="${slug}" target="_blank">${customUrl}</a></td>
           <td><a href="${info.url}" target="_blank">${originalLink}</td>
           <td class="off-white">${slug}</td>
           <td class="off-white">${info.visits}</td>
@@ -566,9 +531,7 @@ const viewStats = async (slug) => {
       </thead>
       <tbody>
         <tr>
-          <td><a href="${slug}" target="_blank">${
-          window.location.origin
-        }/${slug}</a></td>
+          <td><a href="${slug}" target="_blank">${customUrl}</a></td>
           <td><a href="${info.url}" target="_blank">${originalLink}</td>
           <td class="off-white">${slug}</td>
           <td class="off-white">${info.visits}</td>
@@ -602,7 +565,7 @@ const viewStats = async (slug) => {
         </thead>
         <tbody>
           <tr>
-            <td><a href="${slug}" target="_blank">${window.location.origin}/${slug}</a></td>
+            <td><a href="${slug}" target="_blank">${customUrl}</a></td>
             <td><a href="${info.url}" target="_blank">${originalLink}</td>
             <td class="off-white">${slug}</td>
             <td class="off-white">${info.visits}</td>
@@ -636,9 +599,7 @@ const viewStats = async (slug) => {
         </thead>
         <tbody>
           <tr>
-            <td><a href="${slug}" target="_blank">${
-          window.location.origin
-        }/${slug}</a></td>
+            <td><a href="${slug}" target="_blank">${customUrl}</a></td>
             <td><a href="${info.url}" target="_blank">${originalLink}</td>
             <td class="off-white">${slug}</td>
             <td class="off-white">${info.visits}</td>
@@ -658,52 +619,11 @@ const viewStats = async (slug) => {
   }
 }
 
-const viewCustomLinks = async () => {
-  // get cookie
-  const cookie = document.cookie || ''
-  console.log('cookie', cookie)
-  let userId = localStorage.getItem('userId')
-  if (cookie || userId) {
-    // fetch the user's links user/:id/customUrls',
-    const userLinks = await fetch(`/user/${userId}/customUrls`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    const links = await userLinks.json()
-    console.log('links', links)
-    if (links.length == 0) {
-      console.log('no links')
-      return
-    } else {
-      links.forEach((link) => {
-        const slug = link.slug
-        const info = link.info
-        const originalLink = link.originalLink
-        const createdAt = link.createdAt
-        const userId = link.userId
-        return displayCustomLinks(slug, info, originalLink, createdAt, userId)
-      })
-    }
-  }
-}
-
-const displayCustomLinks = async (
-  slug,
-  info,
-  originalLink,
-  createdAt,
-  userId,
-) => {
-  console.log('displaying custom links')
-}
-
 const payingCustomer = async (userId) => {
   // get information from stripe about the user
 
   // for now:
-  return false
+  return true
 }
 
 const subscribe = async (userId) => {
