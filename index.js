@@ -362,54 +362,6 @@ app.post('/user/:id/url', async (req, res, next) => {
   }
 })
 
-// create customUrl if user is logged in
-app.post('/user/:id/customUrl', async (req, res, next) => {
-  const { id } = req.params
-  let { baseUrl, slug, url } = req.body
-
-  try {
-    await customUrlSchema.validate({
-      slug,
-      url,
-      baseUrl,
-    })
-    if (!slug) {
-      slug = nanoid.nanoid(5)
-    } else {
-      // check if slug is in use
-      const existing = await customUrls.findOne({ slug })
-      if (existing) {
-        throw new Error('Slug in use. 🍔')
-      }
-    }
-    slug = slug.toLowerCase()
-    const newCustomUrl = {
-      slug,
-      url,
-      baseUrl,
-      visits: 0,
-      visitors: [],
-      uniqueVisitors: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-    const created = await customUrls.insert(newCustomUrl)
-    console.log('created', created)
-    res.json(created)
-    // add url to user
-    const user = await users.findOne({ _id: id })
-    if (user) {
-      const updatedUser = await users.update(
-        { _id: id },
-        { $push: { customUrls: created } },
-      )
-      console.log('updatedUser', updatedUser)
-    }
-  } catch (error) {
-    next(error)
-  }
-})
-
 // update url - only if user is logged in
 app.put('/user/:id/url/:slug', async (req, res, next) => {
   const { id, slug } = req.params
@@ -449,7 +401,7 @@ app.delete('/user/:id/url/:slug', async (req, res, next) => {
     console.log('url._id', url._id)
 
     const slugToRemove = user.urls.find((url) => url.slug === slug)
-    const toDelete = user.urls.find((url) => url._id === url._id)
+    console.log('slugToRemove', slugToRemove)
 
     // update user url array
     const removeFromUser = await users.update(

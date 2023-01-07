@@ -209,17 +209,10 @@ const createLinks = async () => {
 
   $('.custom-url').removeClass('hidden')
 
-  let checkBox = showCustom()
-}
-
-const showCustom = () => {
   if ($('#checkBox').is(':checked')) {
-    console.log('checked')
     $('#custom-url').show()
-    // clear the url-list div
     $('.url-list').empty()
     $('.button-list').empty()
-    // append an input form and optional custom base url input to the url-list div
     $('.url-list').append(
       `<form id="create-link-form" class="create-link-form">
       <input class="input" type="url" name="url" id="user-baseUrl" placeholder="custom url base" required>
@@ -232,12 +225,9 @@ const showCustom = () => {
     </form>`,
     )
   } else {
-    console.log('not checked')
     $('#custom-url').hide()
-    // clear the url-list div
     $('.url-list').empty()
     $('.button-list').empty()
-    // append an input form and optional custom base url input to the url-list div
     $('.url-list').append(
       `<form id="create-link-form" class="create-link-form">
       <input class="input" type="url" name="url" id="user-url" placeholder="your url" required>
@@ -314,54 +304,6 @@ const shrinkTheLink = async () => {
   }
 }
 
-// const customShrink = async () => {
-//   console.log('shrink clicked')
-//   // get the url input
-//   const url = $('#user-url').val()
-//   // get the slug input
-//   const slug = $('#user-slug').val()
-//   // get the custom base url input
-//   let customUrl = $('#user-baseUrl').val()
-
-//   // if the user doesn't enter http:// or https://, add it
-//   if (!customUrl.includes('http://') && !customUrl.includes('https://')) {
-//     customUrl = 'http://' + customUrl
-//   }
-
-//   // get userId
-//   const userId = localStorage.getItem('userId')
-//   console.log('customUrl', customUrl)
-//   console.log('url', url, 'slug', slug, 'userId', userId)
-//   // send a post request to the server; node uses app.post('/user/:id/customUrl', ...)
-//   const response = await fetch(`/user/${userId}/customUrl`, {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//     body: JSON.stringify({
-//       url: url,
-//       slug: slug || undefined,
-//       baseUrl: customUrl,
-//     }),
-//   })
-//   if (response.ok) {
-//     console.log('response worked')
-//     const data = await response.json()
-//     console.log('data', data)
-//     // show user all their links
-//     $('.url-list').empty()
-//     $('p').remove()
-//     $('.url-list').append(
-//       `<p class="off-white mg-2-2">Your New Link:</p>
-//       <p><a href="${data.slug}" class="newUrl" target="_blank">${data.baseUrl}/${data.slug}</a></p>
-
-//       <p class="off-white mg-2-2">What else do you want to do now?</p>
-//       <button id="crate-links" onclick="createLinks()" class="create">Create Links</button>
-//       <button id="view-links" onclick="viewLinks()" class="create">View My Links</button>`,
-//     )
-//   }
-// }
-
 const viewLinks = async () => {
   $('.url-list').empty()
   userId = localStorage.getItem('userId')
@@ -373,7 +315,6 @@ const viewLinks = async () => {
   })
   if (response.ok) {
     const data = await response.json()
-    console.log('data', data)
 
     let customUrl
 
@@ -398,7 +339,6 @@ const viewLinks = async () => {
           </thead>
 
         ${data.map((link) => {
-          console.log('date')
           if (link.baseUrl !== undefined) {
             customUrl = link.baseUrl + '/' + link.slug
           } else {
@@ -414,10 +354,10 @@ const viewLinks = async () => {
             <td class="off-white">${link.slug}</td>
             <td>
               <button class="userActionBtn center" onclick="deleteLink('${
-                link._id
+                link.slug
               }')">Delete</button>
               <button class="userActionBtn center" onclick="UpdateLink('${
-                link._id
+                link.slug
               }')">Edit</button>
               <button class="userActionBtn center" onClick="viewStats('${
                 link.slug
@@ -433,7 +373,7 @@ const viewLinks = async () => {
 }
 
 const deleteLink = async (slug) => {
-  console.log('delete clicked')
+  console.log('delete clicked', slug)
   // send a delete request to the server : /user/:id/url/:slug
   const response = await fetch(`/user/${userId}/url/${slug}`, {
     method: 'DELETE',
@@ -446,30 +386,16 @@ const deleteLink = async (slug) => {
     const data = await response.json()
     console.log('data', data)
     // show user all their links
-    alert(`Link ${slug} deleted. ${data.message}`)
+    alert(`${slug} successfully deleted! 🕺 🔥`)
     viewLinks()
+  } else {
+    console.log(`Error: ${response.status} ${response.statusText}`)
   }
 }
 
 const updateLink = async (slug) => {
   console.log('update clicked')
 }
-
-// const getUrlVisits = async (slug) => {
-//   const response = await fetch(`/url/${slug}/visits`, {
-//     method: 'GET',
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//   })
-//   if (response.ok) {
-//     const data = await response.json()
-//     console.log('data', data)
-//     return data
-//   } else {
-//     console.log(`Error: ${response.status} ${response.statusText}`)
-//   }
-// }
 
 const getUrlInfo = async (slug) => {
   const response = await fetch(`/url/${slug}`, {
