@@ -103,10 +103,10 @@ const getUserLinks = async (id) => {
       </thead>
       ${data.map((link) => {
         let customUrl
-        if (link.baseUrl !== undefined || link.baseUrl !== null) {
-          customUrl = link.baseUrl
-        } else {
+        if (link.baseUrl === undefined || link.baseUrl === null) {
           customUrl = window.location.origin
+        } else {
+          customUrl = link.baseUrl
         }
         return `
           <tbody>
