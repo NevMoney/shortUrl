@@ -19,7 +19,7 @@ Features:
 Payable items:
 [] user edit url
 [] user view uniqueVisitors location by country
-[] user create QR code for their new link
+[x] user create QR code for their new link
 [x] user create their own base url
 [] user create social media link thingie
 [] add payment option
