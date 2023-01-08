@@ -362,6 +362,9 @@ const viewLinks = async () => {
               <button class="userActionBtn center" onClick="viewStats('${
                 link.slug
               }')">Stats</button>
+              <button class="userActionBtn center" onClick="createQR('${
+                link.url
+              }')">QR</button>
             </td>
           </tr>
         `
@@ -568,15 +571,111 @@ const viewStats = async (slug) => {
   }
 }
 
+const createQR = async (url) => {
+  let userId = localStorage.getItem('userId')
+  let paidUser = await payingCustomer(userId)
+
+  if (paidUser) {
+    $('.qr-code').empty()
+
+    let qrcode = new QRCode(document.querySelector('.qr-code'), {
+      text: url,
+      width: 180,
+      height: 180,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H,
+    })
+
+    let downloadQR = document.createElement('button')
+    downloadQR.setAttribute('id', 'downloadQR')
+    document.querySelector('.qr-code').appendChild(downloadQR)
+
+    let downloadLink = document.createElement('a')
+    downloadLink.setAttribute('download', 'qrcode.png')
+    downloadLink.innerHTML = `👇 Download 👇`
+    downloadQR.appendChild(downloadLink)
+
+    let editColors = document.createElement('button')
+    editColors.setAttribute('id', 'editColors')
+    editColors.innerText = 'Edit Colors'
+    document.querySelector('.qr-code').appendChild(editColors)
+    editColors.addEventListener('click', () => {
+      $('#editColors').remove()
+      let colorDark = document.createElement('input')
+      colorDark.setAttribute('type', 'color')
+      colorDark.setAttribute('id', 'colorDark')
+      document.querySelector('.qr-code').appendChild(colorDark)
+
+      let colorLight = document.createElement('input')
+      colorLight.setAttribute('type', 'color')
+      colorLight.setAttribute('id', 'colorLight')
+      document.querySelector('.qr-code').appendChild(colorLight)
+
+      let updateColors = document.createElement('button')
+      updateColors.setAttribute('id', 'updateColors')
+      updateColors.innerText = 'Update Colors'
+      document.querySelector('.qr-code').appendChild(updateColors)
+
+      updateColors.addEventListener('click', () => {
+        let colorDark = document.querySelector('#colorDark').value
+        let colorLight = document.querySelector('#colorLight').value
+
+        qrcode.clear()
+        qrcode.makeCode(url)
+        qrcode._oErrorCorrectLevel = 1
+        qrcode._htOption.colorDark = colorDark
+        qrcode._htOption.colorLight = colorLight
+        qrcode._htOption.width = 180
+        qrcode._htOption.height = 180
+        qrcode._htOption.text = url
+
+        // make sure to allow the user to download the new QR code
+        let qrCodeImg = document.querySelector('.qr-code img')
+        setTimeout(() => {
+          downloadLink.setAttribute('href', qrCodeImg.src)
+        }, 1000)
+      })
+    })
+
+    let qrCodeImg = document.querySelector('.qr-code img')
+    setTimeout(() => {
+      downloadLink.setAttribute('href', qrCodeImg.src)
+    }, 1000)
+
+    let qrCodeCanvas = document.querySelector('canvas')
+    setTimeout(() => {
+      downloadLink.setAttribute('href', qrCodeCanvas.toDataURL('image/png'))
+    }, 1000)
+
+    if (qrCodeImg.src == undefined || qrCodeImg.src == null) {
+      setTimeout(() => {
+        downloadLink.setAttribute('href', qrCodeCanvas.toDataURL('image/png'))
+      }, 1000)
+    } else {
+      setTimeout(() => {
+        downloadLink.setAttribute('href', qrCodeImg.src)
+      }, 1000)
+    }
+  } else {
+    $('.qr-code').empty()
+    $('.qr-code').append(`
+      <p class="off-white">Subscribe to create QR codes</p>
+      <button class="userActionBtn center"  onClick="subscribe('${userId}')">Subscribe</button>
+    `)
+  }
+}
+
 const payingCustomer = async (userId) => {
   // get information from stripe about the user
 
   // for now:
-  return true
+  return false
 }
 
 const subscribe = async (userId) => {
   // send them to stripe to subscribe
+  console.log('subscribing')
 }
 
 const loggedInDisplay = async () => {

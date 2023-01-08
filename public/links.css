@@ -57,3 +57,43 @@ a {
 .links {
   margin-top: 5rem;
 }
+
+#downloadQR {
+  background-color: transparent;
+  border: 1px solid deeppink;
+  border-radius: 5px;
+  padding: 10px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 6px 2px;
+  cursor: pointer;
+}
+
+#editColors,
+#updateColors {
+  cursor: pointer;
+  background-color: deeppink;
+  color: white;
+  border: 1px solid rgb(196, 6, 108);
+  border-radius: 5px;
+  padding: 10px 17px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-grid;
+  font-size: 16px;
+  margin: 6px 2px;
+}
+
+#editColors:hover,
+#updateColors:hover {
+  background-color: rgb(196, 6, 108);
+}
+
+.qr-code {
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-grid;
+}
